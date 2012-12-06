@@ -35,35 +35,24 @@
 @prefix doap:     <http://usefulinc.com/ns/doap#> .
 @prefix void:     <http://rdfs.org/ns/void#> .
 @prefix ir:       <http://www.ontologydesignpatterns.org/cp/owl/informationrealization.owl#> .
-@prefix edm: <http://www.europeana.eu/schemas/edm/> .
-@prefix ore: <http://www.openarchives.org/ore/terms/> .
-@prefix wgs84: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
-@prefix xalan: <http://xml.apache.org/xalan> .
-@prefix tei2edm: <http://sbb.spk-berlin.de/dm2e/tei2edm> .
-@prefix dm2e: <http://data.dm2e.eu/schemas/dm2e/0.1/> .
-@prefix dct: <http://purl.org/dc/terms/> .
-
 
 # Server configuration section
 <> a conf:Configuration;
     # Project name for display in page titles
-    conf:projectName "DM2E";
+    conf:projectName "DBpedia.org";
     # Homepage with description of the project for the link in the page header
-    conf:projectHomepage <http://dm2e.eu>;
+    conf:projectHomepage <http://dbpedia.org>;
     # The Pubby root, where the webapp is running inside the servlet container.
-    conf:webBase <http://lelystad.informatik.uni-mannheim.de:8080/pubby/>;
+    conf:webBase <http://localhost:8080/>;
     # URL of an RDF file whose prefix mapping is to be used by the
     # server; defaults to <>, which is *this* file.
-    # conf:usePrefixesFrom <http://lelystad.informatik.uni-mannheim.de:8080/prefixes.n3>;
-    # conf:usePrefixesFrom <https://dl.dropbox.com/u/14362931/DM2E/prefixes.n3>;
+    conf:usePrefixesFrom <>;
     # If labels and descriptions are available in multiple languages,
     # prefer this one.
     conf:defaultLanguage "en";
     # When the homepage of the server is accessed, this resource will
     # be shown.
-    conf:indexResource <http://dm2e.eu/data/view/provider/oib/wittgenstein-repo/Ms-114>;
-    conf:labelProperty dc:title, dc:description;
-    conf:imageProperty edm:hasView;
+    conf:indexResource <http://dbpedia.org/resource/Wikipedia>;
 
 # Dataset configuration section #1 (for DBpedia resources)
 #
@@ -71,21 +60,14 @@
 # URIs on the Web:             http://localhost:8080/resource/*
     conf:dataset [
         # SPARQL endpoint URL of the dataset
-        conf:sparqlEndpoint <http://lelystad.informatik.uni-mannheim.de:8080/openrdf-sesame/repositories/dm2etest>;
+        conf:sparqlEndpoint <http://dbpedia.openlinksw.com:8890/sparql>;
         # Default graph name to query (not necessary for most endpoints)
-        # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
+        conf:sparqlDefaultGraph <http://dbpedia.org>;
         # Common URI prefix of all resource URIs in the SPARQL dataset
-        conf:datasetBase <http://dm2e.eu/data/>;
-	    conf:addSameAsStatements "true";
+        conf:datasetBase <http://dbpedia.org/resource/>;
         # Will be appended to the conf:webBase to form the public
         # resource URIs; if not present, defaults to ""
         conf:webResourcePrefix "resource/";
-        # Will be appended to the conf:webBase to form the public
-        # data URIs; if not present, defaults to "data/"
-        conf:webDataPrefix "collection/";
-        # Will be appended to the conf:webBase to form the public
-        # page URIs; if not present, defaults to "page/"
-        conf:webPagePrefix "html/";
         # Fixes an issue with the server running behind an Apache proxy;
         # can be ignored otherwise
         conf:fixUnescapedCharacters "(),'!$&*+;=@";
@@ -111,13 +93,13 @@
 #                              http://dbpedia.org/property/*
 # URIs on the Web:             http://localhost:8080/class/*
 #                              http://localhost:8080/property/*
-#    conf:dataset [
-#        conf:sparqlEndpoint <http://lelystad.informatik.uni-mannheim.de:8080/openrdf-workbench/repositories/altedrucke/query>;
-#        conf:sparqlDefaultGraph <file://altedrucke.rdf>;
-#        conf:datasetBase <file:/home/eckertk/altedrucke/>;
-#        # Dataset URIs are mapped only if the part after the
-#        # conf:webBase matches this regular expression
-#        conf:datasetURIPattern "(class|property)/.*";
-#        conf:fixUnescapedCharacters "(),'!$&*+;=@";
-#    ];
+    conf:dataset [
+        conf:sparqlEndpoint <http://dbpedia.openlinksw.com:8890/sparql>;
+        conf:sparqlDefaultGraph <http://dbpedia.org>;
+        conf:datasetBase <http://dbpedia.org/>;
+        # Dataset URIs are mapped only if the part after the
+        # conf:webBase matches this regular expression
+        conf:datasetURIPattern "(class|property)/.*";
+        conf:fixUnescapedCharacters "(),'!$&*+;=@";
+    ];
     .

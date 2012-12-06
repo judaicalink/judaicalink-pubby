@@ -4,8 +4,9 @@ import com.hp.hpl.jena.rdf.model.Property;
 
 /**
  * A resource that is mapped between the SPARQL dataset and the Web server.
- * 
+ *
  * @author Richard Cyganiak (richard@cyganiak.de)
+ * @author Kai Eckert (kai@informatik.uni-mannheim.de)
  * @version $Id$
  */
 public class MappedResource {
@@ -48,14 +49,14 @@ public class MappedResource {
 	 * @return the HTML page describing the resource on the public Web server
 	 */
 	public String getPageURL() {
-		return serverConfig.getWebApplicationBaseURI() + "page/" + relativeWebURI;
+		return serverConfig.getWebApplicationBaseURI() + datasetConfig.getWebPagePrefix() + relativeWebURI;
 	}
 	
 	/**
 	 * @return the RDF document describing the resource on the public Web server
 	 */
 	public String getDataURL() {
-		return serverConfig.getWebApplicationBaseURI() + "data/" + relativeWebURI;
+		return serverConfig.getWebApplicationBaseURI() + datasetConfig.getWebDataPrefix() + relativeWebURI;
 	}
 		
 	public String getPathPageURL(Property property) {

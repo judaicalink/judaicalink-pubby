@@ -29,6 +29,7 @@ import de.fuberlin.wiwiss.pubby.vocab.META;
  * @author Richard Cyganiak (richard@cyganiak.de)
  * @author Hannes Mühleisen
  * @author Olaf Hartig
+ * @author Kai Eckert (kai@informatik.uni-mannheim.de)
  * @version $Id$
  */
 public class Dataset {
@@ -110,7 +111,15 @@ public class Dataset {
 				}
 				relativeWebURI = relativeWebURI.substring(getWebResourcePrefix().length());
 			}
-		}
+		}  else {
+            if (relativeWebURI.startsWith(getWebDataPrefix())) {
+                relativeWebURI = relativeWebURI.substring(getWebDataPrefix().length());
+            }
+            if (relativeWebURI.startsWith(getWebPagePrefix())) {
+                relativeWebURI = relativeWebURI.substring(getWebPagePrefix().length());
+            }
+
+        }
 		relativeWebURI = fixUnescapedCharacters(relativeWebURI);
 		if (!datasetURIPattern.matcher(relativeWebURI).matches()) {
 			return null;
@@ -137,15 +146,28 @@ public class Dataset {
 	public boolean redirectRDFRequestsToEndpoint() {
 		return getBooleanConfigValue(CONF.redirectRDFRequestsToEndpoint, false);
 	}
-	
-	public String getWebResourcePrefix() {
-		if (config.hasProperty(CONF.webResourcePrefix)) {
-			return config.getProperty(CONF.webResourcePrefix).getString();
-		}
-		return "";
-	}
 
-	public void addDocumentMetadata(Model document, Resource documentResource) {
+    public String getWebResourcePrefix() {
+        if (config.hasProperty(CONF.webResourcePrefix)) {
+            return config.getProperty(CONF.webResourcePrefix).getString();
+        }
+        return "";
+    }
+    public String getWebDataPrefix() {
+        if (config.hasProperty(CONF.webDataPrefix)) {
+            return config.getProperty(CONF.webDataPrefix).getString();
+        }
+        return "data/";
+    }
+
+    public String getWebPagePrefix() {
+        if (config.hasProperty(CONF.webPagePrefix)) {
+            return config.getProperty(CONF.webPagePrefix).getString();
+        }
+        return "page/";
+    }
+
+    public void addDocumentMetadata(Model document, Resource documentResource) {
 		if (rdfDocumentMetadataTemplate == null) {
 			return;
 		}

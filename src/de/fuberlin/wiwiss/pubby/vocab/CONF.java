@@ -26,8 +26,10 @@ public class CONF {
 
 	public static final Property datasetBase = m.createProperty(NS + "datasetBase");
 	public static final Property datasetURIPattern = m.createProperty(NS + "datasetURIPattern");
-	public static final Property webResourcePrefix = m.createProperty(NS + "webResourcePrefix"); 
-	public static final Property fixUnescapedCharacters = m.createProperty(NS + "fixUnescapedCharacters");
+    public static final Property webResourcePrefix = m.createProperty(NS + "webResourcePrefix");
+    public static final Property webDataPrefix = m.createProperty(NS + "webDataPrefix");
+    public static final Property webPagePrefix = m.createProperty(NS + "webPagePrefix");
+    public static final Property fixUnescapedCharacters = m.createProperty(NS + "fixUnescapedCharacters");
 	public static final Property addSameAsStatements = m.createProperty(NS + "addSameAsStatements");
 	public static final Property sparqlEndpoint = m.createProperty(NS + "sparqlEndpoint"); 
 	public static final Property sparqlDefaultGraph = m.createProperty(NS + "sparqlDefaultGraph");

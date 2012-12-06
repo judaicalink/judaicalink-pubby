@@ -21,8 +21,9 @@ import de.fuberlin.wiwiss.pubby.vocab.CONF;
 
 /**
  * The server's configuration.
- * 
+ *
  * @author Richard Cyganiak (richard@cyganiak.de)
+ * @author Kai Eckert (kai@informatik.uni-mannheim.de)
  * @version $Id$
  */
 public class Configuration {
@@ -115,8 +116,26 @@ public class Configuration {
 		}
 		return null;
 	}
-	
-	public PrefixMapping getPrefixes() {
+
+    public boolean isDataURL(String relativeWebURI) {
+        Iterator it = datasets.iterator();
+        while (it.hasNext()) {
+            Dataset dataset = (Dataset) it.next();
+            if (relativeWebURI.startsWith(dataset.getWebDataPrefix())) return true;
+        }
+        return false;
+    }
+
+    public boolean isPageURL(String relativeWebURI) {
+        Iterator it = datasets.iterator();
+        while (it.hasNext()) {
+            Dataset dataset = (Dataset) it.next();
+            if (relativeWebURI.startsWith(dataset.getWebPagePrefix())) return true;
+        }
+        return false;
+    }
+
+    public PrefixMapping getPrefixes() {
 		return prefixes;
 	}
 

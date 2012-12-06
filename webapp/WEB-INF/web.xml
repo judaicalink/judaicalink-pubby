@@ -23,10 +23,10 @@
     <load-on-startup>1</load-on-startup>
   </servlet>
 
-  <servlet-mapping>
+<!--  <servlet-mapping>
     <servlet-name>PageURLServlet</servlet-name>
     <url-pattern>/page/*</url-pattern>
-  </servlet-mapping>
+  </servlet-mapping>-->
 
   <servlet>
     <servlet-name>PathPageURLServlet</servlet-name>
@@ -45,11 +45,11 @@
     <load-on-startup>1</load-on-startup>
   </servlet>
 
-  <servlet-mapping>
+<!--  <servlet-mapping>
     <servlet-name>DataURLServlet</servlet-name>
     <url-pattern>/data/*</url-pattern>
   </servlet-mapping>
-  
+  -->
   <servlet>
     <servlet-name>PathDataURLServlet</servlet-name>
     <servlet-class>de.fuberlin.wiwiss.pubby.servlets.PathDataURLServlet</servlet-class>
