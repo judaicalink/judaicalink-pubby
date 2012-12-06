@@ -114,9 +114,10 @@ public class Dataset {
 		}  else {
             if (relativeWebURI.startsWith(getWebDataPrefix())) {
                 relativeWebURI = relativeWebURI.substring(getWebDataPrefix().length());
-            }
-            if (relativeWebURI.startsWith(getWebPagePrefix())) {
+            } else if (relativeWebURI.startsWith(getWebPagePrefix())) {
                 relativeWebURI = relativeWebURI.substring(getWebPagePrefix().length());
+            } else {
+                return null;
             }
 
         }
@@ -165,6 +166,10 @@ public class Dataset {
             return config.getProperty(CONF.webPagePrefix).getString();
         }
         return "page/";
+    }
+
+    public boolean isDataResource() {
+        return getWebDataPrefix().equals(getWebResourcePrefix());
     }
 
     public void addDocumentMetadata(Model document, Resource documentResource) {

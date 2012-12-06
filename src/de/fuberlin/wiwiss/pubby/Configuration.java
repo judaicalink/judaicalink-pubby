@@ -3,6 +3,7 @@ package de.fuberlin.wiwiss.pubby;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -34,6 +35,8 @@ public class Configuration {
 	private final Collection commentProperties;
 	private final Collection imageProperties;
 	private final Collection datasets;
+
+    private final Logger log = Logger.getLogger(getClass().getName());
 	
 	public Configuration(Model configurationModel) {
 		model = configurationModel;
@@ -105,15 +108,18 @@ public class Configuration {
 	}
 
 	public MappedResource getMappedResourceFromRelativeWebURI(String relativeWebURI, boolean isResourceURI) {
-		Iterator it = datasets.iterator();
+		log.fine("Mapping resource from relative web URI: " + relativeWebURI);
+        Iterator it = datasets.iterator();
 		while (it.hasNext()) {
 			Dataset dataset = (Dataset) it.next();
 			MappedResource resource = dataset.getMappedResourceFromRelativeWebURI(
 					relativeWebURI, isResourceURI, this);
 			if (resource != null) {
-				return resource;
+				log.fine("   Mapped to " + resource.getDatasetURI() + " (Dataset base: " + resource.getDataset().getDatasetBase() +")");
+                return resource;
 			}
 		}
+        log.fine("   Could not be mapped.");
 		return null;
 	}
 
@@ -121,7 +127,7 @@ public class Configuration {
         Iterator it = datasets.iterator();
         while (it.hasNext()) {
             Dataset dataset = (Dataset) it.next();
-            if (relativeWebURI.startsWith(dataset.getWebDataPrefix())) return true;
+            if (relativeWebURI.startsWith(dataset.getWebDataPrefix()) && !dataset.isDataResource()) return true;
         }
         return false;
     }
@@ -177,4 +183,5 @@ public class Configuration {
 	public String getWebApplicationBaseURI() {
 		return config.getProperty(CONF.webBase).getResource().getURI();
 	}
+
 }

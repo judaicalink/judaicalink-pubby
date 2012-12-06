@@ -1,6 +1,7 @@
 package de.fuberlin.wiwiss.pubby.servlets;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -17,11 +18,14 @@ import de.fuberlin.wiwiss.pubby.Configuration;
  */
 public class RootServlet extends BaseServlet {
 
+    private Logger log = Logger.getLogger(getClass().getName());
+
     protected boolean doGet(String relativeURI,
                             HttpServletRequest request, HttpServletResponse response,
                             Configuration config)
             throws IOException, ServletException {
 
+        log.fine("Relative URI served by Pubby: " + relativeURI);
         // static/ directory handled by default servlet
         if (relativeURI.startsWith("static/")) {
             getServletContext().getNamedDispatcher("default").forward(request, response);
@@ -29,9 +33,13 @@ public class RootServlet extends BaseServlet {
         }
 
         // If index resource is defined, redirect requests for the index page to it
-        if ("".equals(relativeURI) && config.getIndexResource() != null) {
-            response.sendRedirect(config.getIndexResource().getWebURI());
-            return true;
+        if ("".equals(relativeURI)){
+            if (config.getIndexResource() != null) {
+                response.sendRedirect(config.getIndexResource().getWebURI());
+                return true;
+            } else {
+                log.fine("No index resource available in config...");
+            }
         }
 
         // Dispatch to servlets

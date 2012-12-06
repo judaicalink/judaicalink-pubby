@@ -1,6 +1,8 @@
 package de.fuberlin.wiwiss.pubby.servlets;
 import java.io.IOException;
+import java.util.logging.Logger;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,14 +16,17 @@ import de.fuberlin.wiwiss.pubby.negotiation.PubbyNegotiator;
  * Servlet that handles the public URIs of mapped resources.
  * It redirects either to the page URL or to the data URL,
  * based on content negotiation.
- * 
+ *
  * @author Richard Cyganiak (richard@cyganiak.de)
+ * @author Kai Eckert (kai@informatik.uni-mannheim.de)
  * @version $Id$
  */
 public class WebURIServlet extends BaseServlet {
 
+    private Logger log = Logger.getLogger(getClass().getName());
+
 	public boolean doGet(String relativeURI, HttpServletRequest request,
-			HttpServletResponse response, Configuration config) throws IOException {
+			HttpServletResponse response, Configuration config) throws IOException, ServletException {
 		MappedResource resource = config.getMappedResourceFromRelativeWebURI(relativeURI, true);
 		if (resource == null) return false;
 
@@ -42,16 +47,27 @@ public class WebURIServlet extends BaseServlet {
 		response.setContentType("text/plain");
 		String location;
 		if ("text/html".equals(bestMatch.getMediaType())) {
-			location = resource.getPageURL();
+			log.fine("HTML output, redirecting to " + resource.getPageURL());
+            location = resource.getPageURL();
+            response.addHeader("Location", location);
+            response.getOutputStream().println(
+                    "303 See Other: For an HTML representation, see " + location);
+            return true;
 		} else if (resource.getDataset().redirectRDFRequestsToEndpoint()) {
 			location = resource.getDataset().getDataSource().getResourceDescriptionURL(
 					resource.getDatasetURI());	
-		} else {
-			location = resource.getDataURL();
-		}
-		response.addHeader("Location", location);
-		response.getOutputStream().println(
-				"303 See Other: For a description of this item, see " + location);
-		return true;
+		} else  if (resource.getDataset().isDataResource()) {
+            log.fine("Data resource mode, forwarding to DataURLServlet.");
+            getServletContext().getNamedDispatcher("DataURLServlet").forward(request, response);
+            return true;
+        } else {
+            location = resource.getDataURL();
+
+        }
+        log.fine("Redirect to: " + location);
+        response.addHeader("Location", location);
+        response.getOutputStream().println(
+                "303 See Other: For a description of this item, see " + location);
+        return true;
 	}
 }

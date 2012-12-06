@@ -1,3 +1,5 @@
-See http://www4.wiwiss.fu-berlin.de/pubby/
+Original Pubby documentation: http://wifo5-03.informatik.uni-mannheim.de/pubby/
 
-This project used to live inside the DBpedia SVN repository. Future development will happen here on GitHub.
+This is the DM2E (http://dm2e.eu) fork of Pubby. We will implement several modifications and adaptions to suit the DM2E data model.
+
+Contact: Kai Eckert (kai@informatik.uni-mannheim.de)
