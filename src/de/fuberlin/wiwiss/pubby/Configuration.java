@@ -36,6 +36,8 @@ public class Configuration {
 	private final Collection imageProperties;
 	private final Collection datasets;
 
+    private String detectedWebBase;
+
     private final Logger log = Logger.getLogger(getClass().getName());
 	
 	public Configuration(Model configurationModel) {
@@ -181,7 +183,19 @@ public class Configuration {
 	}
 
 	public String getWebApplicationBaseURI() {
-		return config.getProperty(CONF.webBase).getResource().getURI();
+        if (config.hasProperty(CONF.webBase)) {
+            return config.getProperty(CONF.webBase).getResource().getURI();
+        }
+        if (detectedWebBase == null) throw new RuntimeException("No web application base set in config file and detected base not available.");
+		return detectedWebBase;
 	}
+
+    public String getDetectedWebBase() {
+        return detectedWebBase;
+    }
+
+    public void setDetectedWebBase(String detectedWebBase) {
+        this.detectedWebBase = detectedWebBase;
+    }
 
 }

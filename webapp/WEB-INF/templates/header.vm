@@ -16,9 +16,8 @@
 #if ($uri)
       <div class="page-resource-uri"><a href="$uri">$uri</a></div>
 #end
-#if ($rdf_link)
-      <div id="rdficon"><a href="$rdf_link" title="RDF data"><img src="${server_base}static/rdf-icon.gif" alt="[This page as RDF]" /></a></div>
-#end
+
+      <div id="logo"><a href="$project_link" title="$project_name"><img src="${server_base}static/logo.png" alt="[$project_name Logo]" /></a></div>
     </div>
 
 #if ($back_uri)

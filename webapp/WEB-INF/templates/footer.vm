@@ -1,3 +1,6 @@
+#if ($rdf_link)
+      <div id="rdficon"><a href="$rdf_link?output=xml" title="RDF data"><img src="${server_base}static/rdf-icon.gif" alt="[This page as RDF]" /></a></div>
+#end
 #set ($has_text = false)
     <div id="footer">
 #if ($sparql_endpoint)

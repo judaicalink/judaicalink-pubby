@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.hp.hpl.jena.vocabulary.OWL;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
 
@@ -24,8 +25,9 @@ import de.fuberlin.wiwiss.pubby.ResourceDescription;
 /**
  * A servlet for serving the HTML page describing a resource.
  * Invokes a Velocity template.
- * 
+ *
  * @author Richard Cyganiak (richard@cyganiak.de)
+ * @author Kai Eckert (kai@informatik.uni-mannheim.de)
  * @version $Id$
  */
 public class PageURLServlet extends BaseURLServlet {
@@ -40,8 +42,15 @@ public class PageURLServlet extends BaseURLServlet {
 		if (description.size() == 0) {
 			return false;
 		}
-		
-		Velocity.setProperty("velocimacro.context.localscope", Boolean.TRUE);
+
+        // Add owl:sameAs statements referring to the original dataset URI
+        Resource r = description.getResource(resource.getWebURI());
+        if (resource.getDataset().getAddSameAsStatements()) {
+            r.addProperty(OWL.sameAs, description.createResource(resource.getDatasetURI()));
+        }
+
+
+        Velocity.setProperty("velocimacro.context.localscope", Boolean.TRUE);
 		
 		ResourceDescription resourceDescription = new ResourceDescription(
 				resource, description, config);

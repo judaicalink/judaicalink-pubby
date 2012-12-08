@@ -1,6 +1,7 @@
 package de.fuberlin.wiwiss.pubby.servlets;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.UnavailableException;
@@ -23,8 +24,9 @@ import de.fuberlin.wiwiss.pubby.ModelTranslator;
  * This class handles preprocessing of the request to extract the
  * resource URI relative to the namespace root, and manages the
  * {@link Configuration} instance shared by all servlets.
- * 
+ *
  * @author Richard Cyganiak (richard@cyganiak.de)
+ * @author Kai Eckert (kai@informatik.uni-mannheim.de)
  * @version $Id$
  */
 public abstract class BaseServlet extends HttpServlet {
@@ -32,6 +34,8 @@ public abstract class BaseServlet extends HttpServlet {
 		BaseServlet.class.getName() + ".serverConfiguration";
 	
 	private Configuration config;
+
+    private Logger log = Logger.getLogger(getClass().getName());
 
 	public void init() throws ServletException {
 		synchronized (getServletContext()) {
@@ -55,6 +59,7 @@ public abstract class BaseServlet extends HttpServlet {
 		return new Configuration(
 				FileManager.get().loadModel(
 						configFile.getAbsoluteFile().toURI().toString()));
+
 	}
 	
 	protected Model getResourceDescription(MappedResource resource) {
@@ -82,7 +87,8 @@ public abstract class BaseServlet extends HttpServlet {
 			HttpServletResponse response) throws IOException, ServletException {
 		String relativeURI = request.getRequestURI().substring(
 				request.getContextPath().length() + request.getServletPath().length());
-		// Some servlet containers keep the leading slash, some don't
+        config.setDetectedWebBase(detectWebBase(request));
+        // Some servlet containers keep the leading slash, some don't
 		if (!"".equals(relativeURI) && "/".equals(relativeURI.substring(0, 1))) {
 			relativeURI = relativeURI.substring(1);
 		}
@@ -90,7 +96,8 @@ public abstract class BaseServlet extends HttpServlet {
 			send404(response, null, null);
 		}
 	}
-	
+
+
 	protected void send404(HttpServletResponse response, MappedResource resource) throws IOException {
 		send404(response, resource.getWebURI(), 
 				resource.getDataset().getDataSource().getEndpointURL());
@@ -117,4 +124,12 @@ public abstract class BaseServlet extends HttpServlet {
 		}
 		return dataURL + "?output=" + request.getParameter("output");
 	}
+
+    private String detectWebBase(HttpServletRequest request) {
+        int posOfFirstSlash = request.getRequestURL().toString().indexOf('/',8);
+        String hostPort = request.getRequestURL().substring(0,posOfFirstSlash);
+        String detectedWebBase =  hostPort + request.getContextPath() + "/";
+        log.finest("Web base detected: " + detectedWebBase);
+        return detectedWebBase;
+    }
 }
