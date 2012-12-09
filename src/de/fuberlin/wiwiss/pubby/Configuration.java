@@ -34,7 +34,9 @@ public class Configuration {
 	private final Collection labelProperties;
 	private final Collection commentProperties;
 	private final Collection imageProperties;
-	private final Collection datasets;
+    private final Collection datasets;
+    private final Collection externalVocabularyURLs;
+    private final VocabularyCache vocabularyCache;
 
     private String detectedWebBase;
 
@@ -81,8 +83,14 @@ public class Configuration {
 		if (imageProperties.isEmpty()) {
 			imageProperties.add(model.createProperty("http://xmlns.com/foaf/0.1/depiction"));
 		}
-		
-		prefixes = new PrefixMappingImpl();		
+        externalVocabularyURLs = new ArrayList();
+        it = model.listStatements(config, CONF.loadVocabularyFromURL, (RDFNode) null);
+        while (it.hasNext()) {
+            externalVocabularyURLs.add(it.nextStatement().getObject().asResource().getURI());
+        }
+
+
+        prefixes = new PrefixMappingImpl();
 		if (config.hasProperty(CONF.usePrefixesFrom)) {
 			it = config.listProperties(CONF.usePrefixesFrom);
 			while (it.hasNext()) {
@@ -96,6 +104,7 @@ public class Configuration {
 		if (prefixes.getNsURIPrefix(CONF.NS) != null) {
 			prefixes.removeNsPrefix(prefixes.getNsURIPrefix(CONF.NS));
 		}
+        this.vocabularyCache = new VocabularyCache(this);
 	}
 
 	public MappedResource getMappedResourceFromDatasetURI(String datasetURI) {
@@ -178,11 +187,19 @@ public class Configuration {
 		return config.getProperty(CONF.projectHomepage).getResource().getURI();
 	}
 
-	public String getProjectName() {
-		return config.getProperty(CONF.projectName).getString();
-	}
+    public String getProjectName() {
+        return config.getProperty(CONF.projectName).getString();
+    }
 
-	public String getWebApplicationBaseURI() {
+    public boolean showLabels() {
+        if (config.hasProperty(CONF.showLabels)) {
+            return config.getProperty(CONF.showLabels).getBoolean();
+        } else {
+            return false;
+        }
+    }
+
+    public String getWebApplicationBaseURI() {
         if (config.hasProperty(CONF.webBase)) {
             return config.getProperty(CONF.webBase).getResource().getURI();
         }
@@ -198,4 +215,11 @@ public class Configuration {
         this.detectedWebBase = detectedWebBase;
     }
 
+    public VocabularyCache getVocabularyCache() {
+        return vocabularyCache;
+    }
+
+    public Collection getExternalVocabularyURLs() {
+        return externalVocabularyURLs;
+    }
 }

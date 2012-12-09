@@ -18,6 +18,8 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.shared.PrefixMapping;
 
+import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
 import de.fuberlin.wiwiss.pubby.Configuration;
 
 /**
@@ -34,6 +36,7 @@ public class ResourceDescription {
 	private final Resource resource;
 	private final Configuration config;
 	private List properties = null;
+
 	
 	public ResourceDescription(MappedResource mappedResource, Model model, 
 			Configuration config) {
@@ -41,7 +44,7 @@ public class ResourceDescription {
 		this.model = model;
 		this.resource = model.getResource(mappedResource.getWebURI());
 		this.config = config;
-	}
+   	}
 
 	public ResourceDescription(Resource resource, Model model, Configuration config) {
 		this.mappedResource = null;
@@ -99,7 +102,7 @@ public class ResourceDescription {
 			Property predicate = stmt.getPredicate();
 			String key = "=>" + predicate;
 			if (!propertyBuilders.containsKey(key)) {
-				propertyBuilders.put(key, new PropertyBuilder(predicate, false));
+				propertyBuilders.put(key, new PropertyBuilder(predicate, false, config.getVocabularyCache()));
 			}
 			((PropertyBuilder) propertyBuilders.get(key)).addValue(stmt.getObject());
 		}
@@ -109,7 +112,7 @@ public class ResourceDescription {
 			Property predicate = stmt.getPredicate();
 			String key = "<=" + predicate;
 			if (!propertyBuilders.containsKey(key)) {
-				propertyBuilders.put(key, new PropertyBuilder(predicate, true));
+				propertyBuilders.put(key, new PropertyBuilder(predicate, true, config.getVocabularyCache()));
 			}
 			((PropertyBuilder) propertyBuilders.get(key)).addValue(stmt.getSubject());
 		}
@@ -162,14 +165,16 @@ public class ResourceDescription {
 		private final URIPrefixer predicatePrefixer;
 		private final boolean isInverse;
 		private final List values;
-		private final int blankNodeCount;
-		public ResourceProperty(Property predicate, boolean isInverse, List values,
-				int blankNodeCount) {
+        private final int blankNodeCount;
+		private VocabularyCache vocabularyCache;
+        public ResourceProperty(Property predicate, boolean isInverse, List values,
+				int blankNodeCount, VocabularyCache vocabularyCache) {
 			this.predicate = predicate;
 			this.predicatePrefixer = new URIPrefixer(predicate, getPrefixes());
 			this.isInverse = isInverse;
 			this.values = values;
 			this.blankNodeCount = blankNodeCount;
+            this.vocabularyCache = vocabularyCache;
 		}
 		public boolean isInverse() {
 			return isInverse;
@@ -186,7 +191,13 @@ public class ResourceDescription {
 		public String getLocalName() {
 			return predicatePrefixer.getLocalName();
 		}
-		public List getValues() {
+        public String getLabel() {
+            return vocabularyCache.getLabel(predicate.getURI());
+        }
+        public String getDescription() {
+            return vocabularyCache.getDescription(predicate.getURI());
+        }
+        public List getValues() {
 			return values;
 		}
 		public int getBlankNodeCount() {
@@ -222,28 +233,36 @@ public class ResourceDescription {
 		private final boolean isInverse;
 		private final List values = new ArrayList();
 		private int blankNodeCount = 0;
-		PropertyBuilder(Property predicate, boolean isInverse) {
+        private VocabularyCache vocabularyCache;
+
+		PropertyBuilder(Property predicate, boolean isInverse, VocabularyCache vocabularyCache) {
 			this.predicate = predicate;
 			this.isInverse = isInverse;
+            this.vocabularyCache = vocabularyCache;
 		}
 		void addValue(RDFNode valueNode) {
 			if (valueNode.isAnon()) {
 				blankNodeCount++;
 				return;
 			}
-			values.add(new Value(valueNode));
+			values.add(new Value(valueNode, predicate, vocabularyCache));
 		}
 		ResourceProperty toProperty() {
 			Collections.sort(values);
-			return new ResourceProperty(predicate, isInverse, values, blankNodeCount);
+			return new ResourceProperty(predicate, isInverse, values, blankNodeCount, vocabularyCache);
 		}
 	}
 	
 	public class Value implements Comparable {
 		private final RDFNode node;
 		private URIPrefixer prefixer;
-		public Value(RDFNode valueNode) {
+        private Property predicate;
+        private VocabularyCache vocabularyCache;
+
+		public Value(RDFNode valueNode, Property predicate, VocabularyCache vocabularyCache) {
 			this.node = valueNode;
+            this.predicate = predicate;
+            this.vocabularyCache = vocabularyCache;
 			if (valueNode.isURIResource()) {
 				prefixer = new URIPrefixer((Resource) valueNode.as(Resource.class), getPrefixes());
 			}
@@ -266,6 +285,12 @@ public class ResourceDescription {
 			}
 			return prefixer.getLocalName();
 		}
+        public String getLabel() {
+            return vocabularyCache.getLabel(node.asNode().getURI());
+        }
+        public String getDescription() {
+            return vocabularyCache.getDescription(node.asNode().getURI());
+        }
 		public String getDatatypeLabel() {
 			if (!node.isLiteral()) return null;
 			String uri = ((Literal) node.as(Literal.class)).getDatatypeURI();
@@ -273,6 +298,9 @@ public class ResourceDescription {
 			URIPrefixer datatypePrefixer = new URIPrefixer(uri, getPrefixes());
 			return datatypePrefixer.toTurtle();
 		}
+        public boolean isType() {
+            return predicate.equals(RDF.type);
+        }
 		public int compareTo(Object other) {
 			if (!(other instanceof Value)) {
 				return 0;

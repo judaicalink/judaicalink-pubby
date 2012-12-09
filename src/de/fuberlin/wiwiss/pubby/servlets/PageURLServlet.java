@@ -74,9 +74,10 @@ public class PageURLServlet extends BaseURLServlet {
 		context.put("title", resourceDescription.getLabel());
 		context.put("comment", resourceDescription.getComment());
 		context.put("image", resourceDescription.getImageURL());
-		context.put("properties", resourceDescription.getProperties());
-		
-		try {
+        context.put("properties", resourceDescription.getProperties());
+        context.put("showLabels", new Boolean(config.showLabels()));
+
+        try {
 			Model metadata = ModelFactory.createDefaultModel();
 			Resource documentRepresentation = resource.getDataset().addMetadataFromTemplate( metadata, resource, getServletContext() );
 			// Replaced the commented line by the following one because the

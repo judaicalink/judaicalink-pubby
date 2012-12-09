@@ -65,6 +65,17 @@
     conf:indexResource <http://dm2e.eu/resource/oib/wittgenstein-repo/Ms-114>;
     conf:labelProperty dc:title, dc:description;
     conf:imageProperty edm:hasView;
+    conf:showLabels "true";
+    conf:loadVocabularyFromURL
+        <http://data.dm2e.eu/edm.rdf>,
+        <http://data.dm2e.eu/crm.rdf>,
+        <http://data.dm2e.eu/dm2e.rdf>,
+        <http://data.dm2e.eu/abc.rdf>,
+        <http://data.dm2e.eu/edmplus.rdf>,
+        <http://www.openarchives.org/ore/1.0/terms>,
+        <http://dublincore.org/2012/06/14/dcelements.rdf>;
+#    conf:loadVocabularyFromFile
+#        "";
 
 
 # Dataset configuration section #1 (for Aggregations)
