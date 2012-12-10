@@ -1,5 +1,8 @@
 package de.fuberlin.wiwiss.pubby;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,8 +29,9 @@ import de.fuberlin.wiwiss.pubby.Configuration;
  * A convenient interface to an RDF description of a resource.
  * Provides access to its label, a textual comment, detailed
  * representations of its properties, and so on.
- * 
+ *
  * @author Richard Cyganiak (richard@cyganiak.de)
+ * @author KAi Eckert (kai@informatik.uni-mannheim.de)
  * @version $Id$
  */
 public class ResourceDescription {
@@ -86,6 +90,16 @@ public class ResourceDescription {
 		}
 		return null;
 	}
+
+    public String getThumbnailURL() {
+        String image = getImageURL();
+        if (image==null) return null;
+        try {
+            return config.getWebApplicationBaseURI() + "image?url="+URLEncoder.encode(image, "utf-8")+"&width=200&height=300";
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("This can not happen! ", e);
+        }
+    }
 	
 	public List getProperties() {
 		if (properties == null) {

@@ -16,28 +16,29 @@
         <div class="breadcrumbs">
             URI of this Description: <a href="$uri">$uri</a>
         </div>
-
+        #foreach ($resource in $resources)
         <div class="resource">
             <div class="clear"></div>
 
             <div class="middle">
-                <h2>$title</h2>
-                <p>URI: <a href="$uri">$uri</a></p>
-                #if (!$properties.isEmpty())
+                <h2>$resource.label</h2>
+                <p>URI: <a href="$resource.URI">$resource.URI</a></p>
+                #if (!$resource.properties.isEmpty())
                 #parse("proptable.vm")
                 #else
                     <p>No further information is available.</p>
                 #end
             </div>
             <div class="right">
-                #if ($image)
+                #if ($resource.imageURL)
                     <div class="image">
-                        <a href="$image"><img src="$thumbnail" alt="Depiction of $title" title="Depiction of $title" /></a><br />
+                        <a href="$resource.imageURL"><img src="$resource.thumbnailURL" alt="Depiction of $resource.label" title="Depiction of $resource.label" /></a><br />
                     </div>
                 #end
             </div>
             <div class="clear"></div>
-    </div>
+        </div>
+        #end
     </div>
 
     <div class="clear"></div>
@@ -79,7 +80,9 @@
 </div>
 
 <div id="footer">
-    Design based on <a href="http://www.oswd.org/design/preview/id/3681">Blue Freedom</a> by <a href="http://www.minimalistic-design.com/">Minimalistic Design</a>.
+    Best viewed with a <a href="http://css3test.com/">CSS3</a> capable browser.<br />
+    Design based on <a href="http://www.oswd.org/design/preview/id/3681">Blue Freedom</a> by <a href="http://www.minimalistic-design.com/">Minimalistic Design</a>.<br />
+    Powered by <a href="http://wifo5-03.informatik.uni-mannheim.de/pubby/">Pubby</a>.
 </div>
 
 #parse("footer.vm")

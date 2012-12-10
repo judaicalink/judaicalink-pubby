@@ -1,6 +1,8 @@
 package de.fuberlin.wiwiss.pubby.servlets;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,20 +24,24 @@ import de.fuberlin.wiwiss.pubby.vocab.FOAF;
 /**
  * Servlet for serving RDF documents containing a description
  * of a given resource.
- * 
+ *
  * @author Richard Cyganiak (richard@cyganiak.de)
+ * @author Kai Eckert (kai@informatik.uni-mannheim.de)
  * @version $Id$
  */
 public class DataURLServlet extends BaseURLServlet {
-	
-	protected boolean doGet(MappedResource resource,
+
+    private Logger log = Logger.getLogger(getClass().getName());
+
+    protected boolean doGet(MappedResource resource,
 			HttpServletRequest request, 
 			HttpServletResponse response,
 			Configuration config) throws IOException {
 
 		String datasetURI = resource.getDatasetURI();
 		String webURI = resource.getWebURI();
-		Model description = getResourceDescription(resource);
+        log.fine("Get RDF model for resource " + resource.getWebURI());
+        Model description = getResourceDescription(resource);
 		
 		// Check if resource exists in dataset
 		if (description.size() == 0) {
@@ -46,30 +52,38 @@ public class DataURLServlet extends BaseURLServlet {
 		}
 		
 		// Add owl:sameAs statements referring to the original dataset URI
-		Resource r = description.getResource(webURI);
-		if (resource.getDataset().getAddSameAsStatements()) {
-			r.addProperty(OWL.sameAs, description.createResource(datasetURI));
-		}
+
+        Iterator it = resource.getDataset().getPublishedResources(resource.getDatasetURI()).iterator();
+        while (it.hasNext()) {
+            String uri = (String) it.next();
+            MappedResource mapped = config.getMappedResourceFromDatasetURI(uri);
+            Resource r = description.getResource(mapped.getWebURI());
+            if (mapped.getDataset().getAddSameAsStatements()) {
+                r.addProperty(OWL.sameAs, description.createResource(mapped.getDatasetURI()));
+            }
+
+            // Add links to RDF documents with descriptions of the blank nodes
+            StmtIterator it2 = r.listProperties();
+            while (it2.hasNext()) {
+                Statement stmt = it2.nextStatement();
+                if (!stmt.getObject().isAnon()) continue;
+                String pathDataURL = resource.getPathDataURL(stmt.getPredicate());
+                ((Resource) stmt.getResource()).addProperty(RDFS.seeAlso,
+                        description.createResource(pathDataURL));
+            }
+            it2 = description.listStatements(null, null, r);
+            while (it2.hasNext()) {
+                Statement stmt = it2.nextStatement();
+                if (!stmt.getSubject().isAnon()) continue;
+                String pathDataURL = resource.getInversePathDataURL(stmt.getPredicate());
+                ((Resource) stmt.getSubject().as(Resource.class)).addProperty(RDFS.seeAlso,
+                        description.createResource(pathDataURL));
+            }
+        }
 		
-		// Add links to RDF documents with descriptions of the blank nodes
-		StmtIterator it = r.listProperties();
-		while (it.hasNext()) {
-			Statement stmt = it.nextStatement();
-			if (!stmt.getObject().isAnon()) continue;
-			String pathDataURL = resource.getPathDataURL(stmt.getPredicate());
-			((Resource) stmt.getResource()).addProperty(RDFS.seeAlso, 
-					description.createResource(pathDataURL));
-		}
-		it = description.listStatements(null, null, r);
-		while (it.hasNext()) {
-			Statement stmt = it.nextStatement();
-			if (!stmt.getSubject().isAnon()) continue;
-			String pathDataURL = resource.getInversePathDataURL(stmt.getPredicate());
-			((Resource) stmt.getSubject().as(Resource.class)).addProperty(RDFS.seeAlso, 
-					description.createResource(pathDataURL));
-		}
+
 		
-		// Add document metadata
+		/*// Add document metadata
 		if (description.qnameFor(FOAF.primaryTopic.getURI()) == null
 				&& description.getNsPrefixURI("foaf") == null) {
 			description.setNsPrefix("foaf", FOAF.NS);
@@ -79,13 +93,13 @@ public class DataURLServlet extends BaseURLServlet {
 			description.setNsPrefix("rdfs", RDFS.getURI());
 		}
 		Resource document = description.getResource(addQueryString(resource.getDataURL(), request));
-		document.addProperty(FOAF.primaryTopic, r);
+		document.addProperty(FOAF.topic, r);
 		document.addProperty(RDFS.label, 
 				"RDF description of " + 
 				new ResourceDescription(resource, description, config).getLabel());
 		resource.getDataset().addDocumentMetadata(description, document);
 		resource.getDataset().addMetadataFromTemplate(description, resource, getServletContext());
-
+*/
 
 		ModelResponse server = new ModelResponse(description, request, response);
 		server.serve();

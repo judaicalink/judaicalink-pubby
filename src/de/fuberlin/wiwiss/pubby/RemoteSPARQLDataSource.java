@@ -3,6 +3,7 @@ package de.fuberlin.wiwiss.pubby;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collections;
+import java.util.logging.Logger;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -11,18 +12,23 @@ import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 /**
  * A data source backed by a SPARQL endpoint accessed through
  * the SPARQL protocol.
- * 
+ *
  * @author Richard Cyganiak (richard@cyganiak.de)
+ * @author Kai Eckert (kai@informatik.uni-mannheim.de)
  * @version $Id$
  */
 public class RemoteSPARQLDataSource implements DataSource {
 	private String endpointURL;
 	private String defaultGraphName;
 	private String previousDescribeQuery;
-	
-	public RemoteSPARQLDataSource(String endpointURL, String defaultGraphName) {
+    private Dataset dataset;
+
+    private Logger log = Logger.getLogger(getClass().getName());
+
+	public RemoteSPARQLDataSource(String endpointURL, String defaultGraphName, Dataset dataset) {
 		this.endpointURL = endpointURL;
 		this.defaultGraphName = defaultGraphName;
+        this.dataset = dataset;
 	}
 	
 	public String getEndpointURL() {
@@ -40,7 +46,7 @@ public class RemoteSPARQLDataSource implements DataSource {
 				result.append("&");
 			}
 			result.append("query=");
-			result.append(URLEncoder.encode("DESCRIBE <" + resourceURI + ">", "utf-8"));
+			result.append(URLEncoder.encode(dataset.getSparqlQuery(resourceURI), "utf-8"));
 			return result.toString();
 		} catch (UnsupportedEncodingException ex) {
 			// can't happen, utf-8 is always supported
@@ -49,7 +55,7 @@ public class RemoteSPARQLDataSource implements DataSource {
 	}
 	
 	public Model getResourceDescription(String resourceURI) {
-		return execDescribeQuery("DESCRIBE <" + resourceURI + ">");
+		return execQuery(dataset.getSparqlQuery(resourceURI));
 	}
 	
 	public Model getAnonymousPropertyValues(String resourceURI, Property property, boolean isInverse) {
@@ -58,19 +64,25 @@ public class RemoteSPARQLDataSource implements DataSource {
 					? "?x <" + property.getURI() + "> <" + resourceURI + "> . "
 					: "<" + resourceURI + "> <" + property.getURI() + "> ?x . ")
 			+ "FILTER (isBlank(?x)) }";
-		return execDescribeQuery(query);
+		return execQuery(query);
 	}
 	
 	public String getPreviousDescribeQuery() {
 		return previousDescribeQuery;
 	}
 	
-	private Model execDescribeQuery(String query) {
-		previousDescribeQuery = query;
+	private Model execQuery(String query) {
+		log.fine("Executing query: " + query);
+        previousDescribeQuery = query;
 		QueryEngineHTTP endpoint = new QueryEngineHTTP(endpointURL, query);
 		if (defaultGraphName != null) {
 			endpoint.setDefaultGraphURIs(Collections.singletonList(defaultGraphName));
 		}
-		return endpoint.execDescribe();
+        if (query.toLowerCase().trim().startsWith("describe")) {
+		    return endpoint.execDescribe();
+        } else if (query.toLowerCase().trim().startsWith("construct")) {
+            return endpoint.execConstruct();
+        }
+        throw new RuntimeException("Query not supported: " + query);
 	}
 }

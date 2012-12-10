@@ -39,6 +39,10 @@ public class CONF {
 	public static final Property loadRDF = m.createProperty(NS + "loadRDF");
 	public static final Property redirectRDFRequestsToEndpoint = m.createProperty(NS + "redirectRDFRequestsToEndpoint"); 
 	public static final Property rdfDocumentMetadata = m.createProperty(NS + "rdfDocumentMetadata");
-	public static final Property metadataTemplate = m.createProperty(NS + "metadataTemplate");
+    public static final Property metadataTemplate = m.createProperty(NS + "metadataTemplate");
+    public static final Property useSparqlMapping = m.createProperty(NS + "useSparqlMapping");
+    public static final Property uriPattern = m.createProperty(NS + "uriPattern");
+    public static final Property sparqlQuery = m.createProperty(NS + "sparqlQuery");
+    public static final Property publishResources = m.createProperty(NS + "publishResources");
 
 }

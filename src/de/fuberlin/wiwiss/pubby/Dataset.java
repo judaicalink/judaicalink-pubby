@@ -2,6 +2,7 @@ package de.fuberlin.wiwiss.pubby;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -43,6 +44,7 @@ public class Dataset {
 	private final static String metadataPlaceholderURIPrefix = "about:metadata:";
 	private Calendar currentTime;
 	private Resource currentDocRepr;
+    private final List sparqlMappings;
 	
 	public Dataset(Resource config) {
 		model = config.getModel();
@@ -77,7 +79,7 @@ public class Dataset {
 			String defaultGraph = config.hasProperty(CONF.sparqlDefaultGraph)
 					? config.getProperty(CONF.sparqlDefaultGraph).getResource().getURI()
 					: null;
-			dataSource = new RemoteSPARQLDataSource(endpointURL, defaultGraph);
+			dataSource = new RemoteSPARQLDataSource(endpointURL, defaultGraph, this);
 		} else {
 			Model data = ModelFactory.createDefaultModel();
 			StmtIterator it = config.listProperties(CONF.loadRDF);
@@ -87,6 +89,11 @@ public class Dataset {
 			}
 			dataSource = new ModelDataSource(data);
 		}
+        sparqlMappings = new ArrayList();
+        StmtIterator it = model.listStatements(config, CONF.useSparqlMapping, (RDFNode) null);
+        while (it.hasNext()) {
+            sparqlMappings.add(new SparqlMapping(it.nextStatement().getResource()));
+        }
 	}
 
 	public boolean isDatasetURI(String uri) {
@@ -383,4 +390,66 @@ public class Dataset {
 	private String unescapeURIDelimiters(String uri) {
 		return uri.replaceAll("%23", "#").replaceAll("%3F", "?");
 	}
+
+    public List getSparqlMappings() {
+        return sparqlMappings;
+    }
+
+    public String getSparqlQuery(String uri) {
+        Iterator it = getSparqlMappings().iterator();
+        while (it.hasNext()) {
+            SparqlMapping sm = (SparqlMapping) it.next();
+            if (sm.isMappedURI(uri)) {
+                return sm.getQuery(uri);
+            }
+        }
+        return "DESCRIBE <" + uri + ">";
+    }
+
+    public List getPublishedResources(String uri) {
+        Iterator it = getSparqlMappings().iterator();
+        while (it.hasNext()) {
+            SparqlMapping sm = (SparqlMapping) it.next();
+            if (sm.isMappedURI(uri)) {
+                return sm.getPublishedResources(uri);
+            }
+        }
+        List result = new ArrayList();
+        result.add(uri);
+        return result;
+    }
+
+    public class SparqlMapping {
+        private Pattern uriPattern;
+        private String sparqlQuery;
+        private List publishResources = new ArrayList();
+
+        public SparqlMapping(Resource mapping) {
+            this.sparqlQuery = mapping.getProperty(CONF.sparqlQuery).getString();
+            this.uriPattern = Pattern.compile(mapping.getProperty(CONF.uriPattern).getString());
+            StmtIterator it = mapping.listProperties(CONF.publishResources);
+            while (it.hasNext()) {
+                Statement stmt = it.nextStatement();
+                publishResources.add(stmt.getString());
+            }
+
+        }
+
+        public List getPublishedResources(String uri) {
+            List result = new ArrayList();
+            Iterator it = publishResources.iterator();
+            while (it.hasNext()) {
+                result.add(uriPattern.matcher(uri).replaceAll((String) it.next()));
+            }
+            return result;
+        }
+
+        public String getQuery(String uri) {
+            return uriPattern.matcher(uri).replaceAll(sparqlQuery);
+        }
+
+        public boolean isMappedURI(String uri) {
+            return uriPattern.matcher(uri).matches();
+        }
+    }
 }

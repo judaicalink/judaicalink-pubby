@@ -1,10 +1,8 @@
 package de.fuberlin.wiwiss.pubby.servlets;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -32,11 +30,14 @@ import de.fuberlin.wiwiss.pubby.ResourceDescription;
  */
 public class PageURLServlet extends BaseURLServlet {
 
+    private Logger log = Logger.getLogger(getClass().getName());
+
 	public boolean doGet(MappedResource resource, 
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Configuration config) throws ServletException, IOException {
 
+        log.fine("Get RDF model for resource " + resource.getWebURI());
 		Model description = getResourceDescription(resource);
 		
 		if (description.size() == 0) {
@@ -44,17 +45,32 @@ public class PageURLServlet extends BaseURLServlet {
 		}
 
         // Add owl:sameAs statements referring to the original dataset URI
-        Resource r = description.getResource(resource.getWebURI());
-        if (resource.getDataset().getAddSameAsStatements()) {
-            r.addProperty(OWL.sameAs, description.createResource(resource.getDatasetURI()));
-        }
+//        Resource r = description.getResource(resource.getWebURI());
+//        if (resource.getDataset().getAddSameAsStatements()) {
+//            r.addProperty(OWL.sameAs, description.createResource(resource.getDatasetURI()));
+//        }
 
 
         Velocity.setProperty("velocimacro.context.localscope", Boolean.TRUE);
 		
-		ResourceDescription resourceDescription = new ResourceDescription(
-				resource, description, config);
-		String discoLink = "http://www4.wiwiss.fu-berlin.de/rdf_browser/?browse_uri=" +
+        List resourceDescriptions = new ArrayList();
+		Iterator it = resource.getDataset().getPublishedResources(resource.getDatasetURI()).iterator();
+        while (it.hasNext()) {
+            String uri = (String) it.next();
+            MappedResource mapped = config.getMappedResourceFromDatasetURI(uri);
+            Resource r = description.getResource(mapped.getWebURI());
+            if (mapped.getDataset().getAddSameAsStatements()) {
+                r.addProperty(OWL.sameAs, description.createResource(mapped.getDatasetURI()));
+            }
+            log.fine("Adding description for published resource: " + uri);
+            resourceDescriptions.add(new ResourceDescription(
+                    mapped , description, config));
+
+        }
+
+
+
+        String discoLink = "http://www4.wiwiss.fu-berlin.de/rdf_browser/?browse_uri=" +
 				URLEncoder.encode(resource.getWebURI(), "utf-8");
 		String tabulatorLink = "http://dig.csail.mit.edu/2005/ajar/ajaw/tab.html?uri=" +
 				URLEncoder.encode(resource.getWebURI(), "utf-8");
@@ -64,19 +80,16 @@ public class PageURLServlet extends BaseURLServlet {
 		Context context = template.getVelocityContext();
 		context.put("project_name", config.getProjectName());
 		context.put("project_link", config.getProjectLink());
-		context.put("uri", resourceDescription.getURI());
+		context.put("uri", resource.getWebURI());
 		context.put("server_base", config.getWebApplicationBaseURI());
 		context.put("rdf_link", resource.getDataURL());
 		context.put("disco_link", discoLink);
 		context.put("tabulator_link", tabulatorLink);
 		context.put("openlink_link", openLinkLink);
 		context.put("sparql_endpoint", resource.getDataset().getDataSource().getEndpointURL());
-		context.put("title", resourceDescription.getLabel());
-		context.put("comment", resourceDescription.getComment());
-        String image = resourceDescription.getImageURL();
-        context.put("image", image);
-        if (image != null) context.put("thumbnail", config.getWebApplicationBaseURI() + "image?url=" + URLEncoder.encode(image,"utf-8") + "&width=200&height=300");
-        context.put("properties", resourceDescription.getProperties());
+		context.put("title", "NOT YET SOLVED");
+		context.put("comment", "NOT YET SOLVED");
+        context.put("resources", resourceDescriptions);
         context.put("showLabels", new Boolean(config.showLabels()));
 
         try {

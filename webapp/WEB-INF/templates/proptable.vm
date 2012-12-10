@@ -1,6 +1,6 @@
     <table class="description">
       <tr><th width="25%">Property</th><th>Value</th></tr>
-#foreach ($property in $properties)
+#foreach ($property in $resource.properties)
 #if ($velocityCount % 2 == 0)
 #set ($odd_even = "even")
 #else

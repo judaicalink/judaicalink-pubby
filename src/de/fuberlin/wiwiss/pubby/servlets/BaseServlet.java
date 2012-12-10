@@ -92,9 +92,19 @@ public abstract class BaseServlet extends HttpServlet {
 		if (!"".equals(relativeURI) && "/".equals(relativeURI.substring(0, 1))) {
 			relativeURI = relativeURI.substring(1);
 		}
-		if (!doGet(relativeURI, request, response, config)) {
-			send404(response, null, null);
-		}
+        try {
+            if (!doGet(relativeURI, request, response, config)) {
+                send404(response, null, null);
+            }
+        } catch (ServletException se) {
+            log.severe("Servlet Exception: " + se);
+            throw se;
+        } catch (IOException ioe) {
+            log.severe("IO Exception: " + ioe);
+            throw ioe;
+        } catch (Exception e) {
+            log.severe("Exception: " + e);
+        }
 	}
 
 

@@ -89,6 +89,17 @@
         conf:webResourcePrefix "aggregation/";
         conf:webDataPrefix "aggregation/";
         conf:webPagePrefix "html/aggregation/";
+        conf:useSparqlMapping [
+            conf:uriPattern "http://dm2e.eu/aggregation/(.*)";
+            conf:sparqlQuery '''CONSTRUCT {
+                ?s ?p ?o .
+
+            } WHERE {
+                ?s ?p ?o .
+                FILTER (?s = <http://dm2e.eu/resource/$1> || ?s = <http://dm2e.eu/aggregation/$1>)
+            } ''';
+            conf:publishResources "http://dm2e.eu/resource/$1", "http://dm2e.eu/aggregation/$1";
+        ];
     ];
 
 # Dataset configuration section #2 (Default)
