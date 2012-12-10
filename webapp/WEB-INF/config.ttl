@@ -63,7 +63,7 @@
     # When the homepage of the server is accessed, this resource will
     # be shown.
     conf:indexResource <http://dm2e.eu/resource/oib/wittgenstein-repo/Ms-114>;
-    conf:labelProperty dc:title, dc:description;
+    conf:labelProperty rdfs:label, dc:title, dc:identifier;
     conf:imageProperty edm:hasView;
     conf:showLabels "true";
     conf:loadVocabularyFromURL

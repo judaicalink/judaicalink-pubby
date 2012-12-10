@@ -73,7 +73,9 @@ public class PageURLServlet extends BaseURLServlet {
 		context.put("sparql_endpoint", resource.getDataset().getDataSource().getEndpointURL());
 		context.put("title", resourceDescription.getLabel());
 		context.put("comment", resourceDescription.getComment());
-		context.put("image", resourceDescription.getImageURL());
+        String image = resourceDescription.getImageURL();
+        context.put("image", image);
+        if (image != null) context.put("thumbnail", config.getWebApplicationBaseURI() + "image?url=" + URLEncoder.encode(image,"utf-8") + "&width=200&height=300");
         context.put("properties", resourceDescription.getProperties());
         context.put("showLabels", new Boolean(config.showLabels()));
 

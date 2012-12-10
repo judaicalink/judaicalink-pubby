@@ -1,26 +1,85 @@
 #parse("header.vm")
 
-#if ($comment)
-    <p>$comment</p>
-#end
+<div id="wrap">
+    <div id="top"></div>
+    <div id="content">
+        <div class="header">
+            <h1 id="title">$title</h1>
+       <!--     #if ($comment)
+                 <p>$comment</p>
+            #end  -->
+        </div>
+        <div id="logo">
+            <a href="$project_link" title="$project_name"><img src="${server_base}static/logo.png" alt="[$project_name Logo]" /></a>
+        </div>
 
-#if (!$properties.isEmpty())
-#parse("proptable.vm")
-#else
-    <p>No further information is available.</p>
-#end
+        <div class="breadcrumbs">
+            URI of this Description: <a href="$uri">$uri</a>
+        </div>
 
-#if ($image)
-    <div class="image"><img src="$image" alt="Depiction of $title" width="100"/></div><br />
-#end
+        <div class="resource">
+            <div class="clear"></div>
 
-#if ($metadata)
-	<a name="meta"></a>
-	<h2>Metadata</h2>
-	<div id="metadata-tables">
-	#parse("metadatatable.vm")
-	</div>
-	<a href="#meta" onclick="showAllMetadata('metadata-tables')">expand all</a>
-#end
+            <div class="middle">
+                <h2>$title</h2>
+                <p>URI: <a href="$uri">$uri</a></p>
+                #if (!$properties.isEmpty())
+                #parse("proptable.vm")
+                #else
+                    <p>No further information is available.</p>
+                #end
+            </div>
+            <div class="right">
+                #if ($image)
+                    <div class="image">
+                        <a href="$image"><img src="$thumbnail" alt="Depiction of $title" title="Depiction of $title" /></a><br />
+                    </div>
+                #end
+            </div>
+            <div class="clear"></div>
+    </div>
+    </div>
+
+    <div class="clear"></div>
+
+    <div id="bottom">
+        #set ($has_text = false)
+
+        #if ($sparql_endpoint)
+              This page shows information obtained from the SPARQL endpoint at <a class="sparql-uri" href="$sparql_endpoint">$sparql_endpoint</a>.<br />
+        #end
+        #if ($rdf_link)
+              <img src="${server_base}static/rdf-icon.gif" />
+              <a href="$rdf_link?output=ttl">As Turtle</a> |
+              <a href="$rdf_link?output=xml">As RDF/XML</a>
+        #set ($has_text = true)
+        #end
+        #if ($disco_link)
+        #if ($has_text)
+              |
+        #end
+              <a href="$disco_link">Browse in Disco</a>
+        #set ($has_text = true)
+        #end
+        #if ($tabulator_link)
+        #if ($has_text)
+              |
+        #end
+              <a href="$tabulator_link">Browse in Tabulator</a>
+        #set ($has_text = true)
+        #end
+        #if ($openlink_link)
+        #if ($has_text)
+              |
+        #end
+              <a href="$openlink_link">Browse in OpenLink Browser</a>
+        #set ($has_text = true)
+        #end
+    </div>
+</div>
+
+<div id="footer">
+    Design based on <a href="http://www.oswd.org/design/preview/id/3681">Blue Freedom</a> by <a href="http://www.minimalistic-design.com/">Minimalistic Design</a>.
+</div>
 
 #parse("footer.vm")
