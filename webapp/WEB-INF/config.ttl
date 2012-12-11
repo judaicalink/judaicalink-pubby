@@ -96,9 +96,14 @@
 
             } WHERE {
                 ?s ?p ?o .
-                FILTER (?s = <http://dm2e.eu/resource/$1> || ?s = <http://dm2e.eu/aggregation/$1>)
+                FILTER (
+                    ?s = <http://dm2e.eu/resource/$1> || ?s = <http://dm2e.eu/aggregation/$1>
+                    || ?o = <http://dm2e.eu/resource/$1> || ?o = <http://dm2e.eu/aggregation/$1>
+                )
             } ''';
-            conf:publishResources "http://dm2e.eu/resource/$1", "http://dm2e.eu/aggregation/$1";
+            conf:publishResources
+                "http://dm2e.eu/aggregation/$1",
+                "http://dm2e.eu/resource/$1";
         ];
     ];
 
@@ -115,9 +120,10 @@
         # Will be appended to the conf:webBase to form the public
         # resource URIs; if not present, defaults to ""
         conf:webResourcePrefix "resource/";
+        conf:customRedirect "de.fuberlin.wiwiss.pubby.dm2e.ResourceRedirector";
         # Will be appended to the conf:webBase to form the public
         # data URIs; if not present, defaults to "data/"
-        conf:webDataPrefix "data/resource/";
+        conf:webDataPrefix "/data/resource/";
         # Will be appended to the conf:webBase to form the public
         # page URIs; if not present, defaults to "page/"
         conf:webPagePrefix "html/resource/";

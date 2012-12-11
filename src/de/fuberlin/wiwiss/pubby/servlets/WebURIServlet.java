@@ -46,7 +46,11 @@ public class WebURIServlet extends BaseServlet {
 		response.setStatus(303);
 		response.setContentType("text/plain");
 		String location;
-		if ("text/html".equals(bestMatch.getMediaType()) && request.getParameter("output")==null) {
+        if (resource.getDataset().hasCustomRedirect()) {
+            location = resource.getDataset().getCustomRedirect(resource.getWebURI());
+            log.fine("Custom redirect, redirecting to " + location);
+        }
+		else if ("text/html".equals(bestMatch.getMediaType()) && request.getParameter("output")==null) {
 			log.fine("HTML output, redirecting to " + resource.getPageURL());
             location = resource.getPageURL();
             response.addHeader("Location", location);

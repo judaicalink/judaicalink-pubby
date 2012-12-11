@@ -45,6 +45,7 @@ public class Dataset {
 	private Calendar currentTime;
 	private Resource currentDocRepr;
     private final List sparqlMappings;
+    private URIRedirector redirector;
 	
 	public Dataset(Resource config) {
 		model = config.getModel();
@@ -93,6 +94,18 @@ public class Dataset {
         StmtIterator it = model.listStatements(config, CONF.useSparqlMapping, (RDFNode) null);
         while (it.hasNext()) {
             sparqlMappings.add(new SparqlMapping(it.nextStatement().getResource()));
+        }
+        redirector = null;
+        if (config.hasProperty(CONF.customRedirect)) {
+            try {
+                redirector = (URIRedirector) Class.forName(config.getProperty(CONF.customRedirect).getString()).newInstance();
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
         }
 	}
 
@@ -173,6 +186,17 @@ public class Dataset {
             return config.getProperty(CONF.webPagePrefix).getString();
         }
         return "page/";
+    }
+
+    public String getCustomRedirect(String uri) {
+        if (redirector!=null) {
+            return redirector.getRedirectedURI(uri);
+        }
+        return null;
+    }
+
+    public boolean hasCustomRedirect() {
+        return redirector!=null;
     }
 
     public boolean isDataResource() {
