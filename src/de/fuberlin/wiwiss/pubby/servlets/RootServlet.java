@@ -45,11 +45,14 @@ public class RootServlet extends BaseServlet {
         // Dispatch to servlets
         if (config.isPageURL(relativeURI)) {
             getServletContext().getNamedDispatcher("PageURLServlet").forward(request, response);
+            return true;
         } else if (config.isDataURL(relativeURI)) {
             getServletContext().getNamedDispatcher("DataURLServlet").forward(request, response);
+            return true;
         } else {
             getServletContext().getNamedDispatcher("WebURIServlet").forward(request, response);
+            return true;
         }
-        return true;
+
     }
 }

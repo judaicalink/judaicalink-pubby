@@ -53,18 +53,27 @@ public class PageURLServlet extends BaseURLServlet {
 
         Velocity.setProperty("velocimacro.context.localscope", Boolean.TRUE);
 		
+        String title=null, comment=null;
+        String primaryResourceURI = resource.getDataset().getPrimaryResource(resource.getDatasetURI());
+        log.fine("Primary URI: " + primaryResourceURI);
         List resourceDescriptions = new ArrayList();
 		Iterator it = resource.getDataset().getPublishedResources(resource.getDatasetURI()).iterator();
         while (it.hasNext()) {
             String uri = (String) it.next();
+            log.fine("Publishing description for URI: " + uri);
             MappedResource mapped = config.getMappedResourceFromDatasetURI(uri);
             Resource r = description.getResource(mapped.getWebURI());
             if (mapped.getDataset().getAddSameAsStatements()) {
                 r.addProperty(OWL.sameAs, description.createResource(mapped.getDatasetURI()));
             }
             log.fine("Adding description for published resource: " + uri);
-            resourceDescriptions.add(new ResourceDescription(
-                    mapped , description, config));
+            ResourceDescription desc = new ResourceDescription(
+                    mapped , description, config);
+            resourceDescriptions.add(desc);
+            if (mapped.getDatasetURI().equals(primaryResourceURI)) {
+                title = desc.getLabel();
+                comment = desc.getComment();
+            }
 
         }
 
@@ -76,19 +85,22 @@ public class PageURLServlet extends BaseURLServlet {
 				URLEncoder.encode(resource.getWebURI(), "utf-8");
 		String openLinkLink = "http://linkeddata.uriburner.com/ode/?uri=" +
 				URLEncoder.encode(resource.getWebURI(), "utf-8");
-		VelocityHelper template = new VelocityHelper(getServletContext(), response);
+        String graphiteLink = "http://graphite.ecs.soton.ac.uk/browser/?uri=" +
+                URLEncoder.encode(resource.getWebURI(), "utf-8");
+        VelocityHelper template = new VelocityHelper(getServletContext(), response);
 		Context context = template.getVelocityContext();
 		context.put("project_name", config.getProjectName());
 		context.put("project_link", config.getProjectLink());
 		context.put("uri", resource.getWebURI());
 		context.put("server_base", config.getWebApplicationBaseURI());
 		context.put("rdf_link", resource.getDataURL());
-		context.put("disco_link", discoLink);
-		context.put("tabulator_link", tabulatorLink);
-		context.put("openlink_link", openLinkLink);
+        context.put("disco_link", discoLink);
+        context.put("graphite_link", graphiteLink);
+        // context.put("tabulator_link", tabulatorLink);
+		// context.put("openlink_link", openLinkLink);
 		context.put("sparql_endpoint", resource.getDataset().getDataSource().getEndpointURL());
-		context.put("title", "NOT YET SOLVED");
-		context.put("comment", "NOT YET SOLVED");
+		context.put("title", title);
+		context.put("comment", comment);
         context.put("resources", resourceDescriptions);
         context.put("showLabels", new Boolean(config.showLabels()));
 

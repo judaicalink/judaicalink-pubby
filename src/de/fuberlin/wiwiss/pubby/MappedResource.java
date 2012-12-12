@@ -49,6 +49,7 @@ public class MappedResource {
 	 * @return the HTML page describing the resource on the public Web server
 	 */
 	public String getPageURL() {
+        if (getDataset().hasCustomRedirect()) return getDataset().getCustomRedirector().getPageURL(getWebURI());
 		return serverConfig.getWebApplicationBaseURI() + datasetConfig.getWebPagePrefix() + relativeWebURI;
 	}
 	
@@ -56,7 +57,8 @@ public class MappedResource {
 	 * @return the RDF document describing the resource on the public Web server
 	 */
 	public String getDataURL() {
-		return serverConfig.getWebApplicationBaseURI() + datasetConfig.getWebDataPrefix() + relativeWebURI;
+        if (getDataset().hasCustomRedirect()) return getDataset().getCustomRedirector().getDataURL(getWebURI());
+        return serverConfig.getWebApplicationBaseURI() + datasetConfig.getWebDataPrefix() + relativeWebURI;
 	}
 		
 	public String getPathPageURL(Property property) {

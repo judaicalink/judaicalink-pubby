@@ -62,6 +62,13 @@
               <a href="$disco_link">Browse in Disco</a>
         #set ($has_text = true)
         #end
+        #if ($graphite_link)
+                #if ($has_text)
+                      |
+                #end
+                      <a href="$graphite_link">Browse in Graphite Browser</a>
+                #set ($has_text = true)
+        #end
         #if ($tabulator_link)
         #if ($has_text)
               |

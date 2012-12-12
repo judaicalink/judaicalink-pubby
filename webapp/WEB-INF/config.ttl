@@ -104,6 +104,8 @@
             conf:publishResources
                 "http://dm2e.eu/aggregation/$1",
                 "http://dm2e.eu/resource/$1";
+            conf:primaryResource
+                "http://dm2e.eu/resource/$1";
         ];
     ];
 

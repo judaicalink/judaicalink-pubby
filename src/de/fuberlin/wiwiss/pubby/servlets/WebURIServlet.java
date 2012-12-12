@@ -43,35 +43,30 @@ public class WebURIServlet extends BaseServlet {
 			return true;
 		}
 		
-		response.setStatus(303);
-		response.setContentType("text/plain");
 		String location;
-        if (resource.getDataset().hasCustomRedirect()) {
-            location = resource.getDataset().getCustomRedirect(resource.getWebURI());
-            log.fine("Custom redirect, redirecting to " + location);
-        }
-		else if ("text/html".equals(bestMatch.getMediaType()) && request.getParameter("output")==null) {
-			log.fine("HTML output, redirecting to " + resource.getPageURL());
-            location = resource.getPageURL();
-            response.addHeader("Location", location);
-            response.getOutputStream().println(
-                    "303 See Other: For an HTML representation, see " + location);
-            return true;
-		} else if (resource.getDataset().redirectRDFRequestsToEndpoint()) {
+        String message;
+        if ("text/html".equals(bestMatch.getMediaType()) && request.getParameter("output")==null) {
+		    location = resource.getPageURL();
+            message = "For an HTML representation, see " + location;
+            log.fine("HTML output, redirecting to " + location);
+        } else if (resource.getDataset().redirectRDFRequestsToEndpoint()) {
 			location = resource.getDataset().getDataSource().getResourceDescriptionURL(
-					resource.getDatasetURI());	
-		} else  if (resource.getDataset().isDataResource()) {
+					resource.getDatasetURI());
+            message = "For a description of this item, see " + location;
+        } else  if (resource.getDataset().isDataResource()) {
             log.fine("Data resource mode, forwarding to DataURLServlet.");
             getServletContext().getNamedDispatcher("DataURLServlet").forward(request, response);
             return true;
         } else {
             location = resource.getDataURL();
-
+            message = "For a description of this item, see " + location;
         }
         log.fine("Redirect to: " + location);
+        response.setStatus(303);
+        response.setContentType("text/plain");
         response.addHeader("Location", location);
         response.getOutputStream().println(
-                "303 See Other: For a description of this item, see " + location);
+                "303 See Other: " + message);
         return true;
 	}
 }

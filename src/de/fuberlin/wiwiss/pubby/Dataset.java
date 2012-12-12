@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletContext;
@@ -46,6 +47,8 @@ public class Dataset {
 	private Resource currentDocRepr;
     private final List sparqlMappings;
     private URIRedirector redirector;
+
+    private Logger log = Logger.getLogger(getClass().getName());
 	
 	public Dataset(Resource config) {
 		model = config.getModel();
@@ -188,11 +191,8 @@ public class Dataset {
         return "page/";
     }
 
-    public String getCustomRedirect(String uri) {
-        if (redirector!=null) {
-            return redirector.getRedirectedURI(uri);
-        }
-        return null;
+    public URIRedirector getCustomRedirector() {
+        return redirector;
     }
 
     public boolean hasCustomRedirect() {
@@ -443,14 +443,33 @@ public class Dataset {
         return result;
     }
 
+    public String getPrimaryResource(String uri) {
+        log.fine("Detecting primary resource for URI: " + uri);
+        Iterator it = getSparqlMappings().iterator();
+        while (it.hasNext()) {
+            SparqlMapping sm = (SparqlMapping) it.next();
+            if (sm.isMappedURI(uri)) {
+                return sm.getPrimaryResource(uri);
+            }
+        }
+        return uri;
+    }
+
     public class SparqlMapping {
         private Pattern uriPattern;
         private String sparqlQuery;
         private List publishResources = new ArrayList();
 
+        public String getPrimaryResource(String uri) {
+            return uriPattern.matcher(uri).replaceAll(primaryResource);
+        }
+
+        private String primaryResource;
+
         public SparqlMapping(Resource mapping) {
             this.sparqlQuery = mapping.getProperty(CONF.sparqlQuery).getString();
             this.uriPattern = Pattern.compile(mapping.getProperty(CONF.uriPattern).getString());
+            this.primaryResource = mapping.getProperty(CONF.primaryResource).getString();
             StmtIterator it = mapping.listProperties(CONF.publishResources);
             while (it.hasNext()) {
                 Statement stmt = it.nextStatement();

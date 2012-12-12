@@ -104,6 +104,7 @@ public abstract class BaseServlet extends HttpServlet {
             throw ioe;
         } catch (Exception e) {
             log.severe("Exception: " + e);
+            throw new RuntimeException(e);
         }
 	}
 

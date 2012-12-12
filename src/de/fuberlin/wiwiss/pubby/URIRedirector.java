@@ -7,5 +7,6 @@ package de.fuberlin.wiwiss.pubby;
  * @version $Id$
  */
 public interface URIRedirector {
-    public String getRedirectedURI(String uri);
+    public String getPageURL(String uri);
+    public String getDataURL(String uri);
 }
