@@ -10,9 +10,11 @@ import de.fuberlin.wiwiss.pubby.URIRedirector;
 public class ResourceRedirector implements URIRedirector {
 
     public String getPageURL(String uri) {
-        return uri.replaceFirst("resource","html/aggregation");
+        if (uri.contains("aggregation")) return uri.replaceFirst("aggregation","html/resourcemap");
+        return uri.replaceFirst("resource","html/resourcemap");
     }
     public String getDataURL(String uri) {
-        return uri.replaceFirst("resource","aggregation");
+        if (uri.contains("aggregation")) return uri.replaceFirst("aggregation","resourcemap");
+        return uri.replaceFirst("resource","resourcemap");
     }
 }

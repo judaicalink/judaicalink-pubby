@@ -45,6 +45,7 @@ public class CONF {
     public static final Property sparqlQuery = m.createProperty(NS + "sparqlQuery");
     public static final Property publishResources = m.createProperty(NS + "publishResources");
     public static final Property primaryResource = m.createProperty(NS + "primaryResource");
+    public static final Property webDataResource = m.createProperty(NS + "webDataResource");
     public static final Property customRedirect = m.createProperty(NS + "customRedirect");
 
 }

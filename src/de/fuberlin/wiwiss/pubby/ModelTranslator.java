@@ -1,12 +1,8 @@
 package de.fuberlin.wiwiss.pubby;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.rdf.model.*;
+
+import java.io.StringWriter;
 
 /**
  * Translates an RDF model from the dataset into one fit for publication
@@ -24,10 +20,12 @@ public class ModelTranslator {
 		this.serverConfig = configuration;
 	}
 	
-	public Model getTranslated() {
+	public Model getTranslated(MappedResource resource) {
 		Model result = ModelFactory.createDefaultModel();
 		result.setNsPrefixes(serverConfig.getPrefixes());
-		StmtIterator it = model.listStatements();
+        Model prStatements = ModelFactory.createDefaultModel();
+        // prStatements.setNsPrefixes(serverConfig.getPrefixes());
+        StmtIterator it = model.listStatements();
 		while (it.hasNext()) {
 			Statement stmt = it.nextStatement();
 			Resource s = stmt.getSubject();
@@ -41,10 +39,22 @@ public class ModelTranslator {
 				o = result.createResource(
 						getPublicURI(((Resource) o).getURI()));
 			}
+            if (s.getURI().equals(getPublicURI(resource.getDataset().getPrimaryResource(resource.getDatasetURI())))) {
+                prStatements.add(s,p,o);
+            }
 			result.add(s, p, o);
 		}
-		return result;
+        StringWriter sw = new StringWriter();
+        prStatements.write(sw, "Turtle");
+        // String b64graph = getBZip2Base64(sw.toString());
+        //b64graph = getBZip2Base64(b64graph);
+        // String subject = getPublicURI(resource.getDataset().getWebDataResource(resource.getDatasetURI()));
+        // result.add(result.createResource(subject),result.createProperty("http://libre/state"), b64graph);
+
+        return result;
 	}
+
+
 	
 	private String getPublicURI(String datasetURI) {
 		MappedResource resource = serverConfig.getMappedResourceFromDatasetURI(datasetURI);

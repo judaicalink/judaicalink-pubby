@@ -1,8 +1,10 @@
 package de.fuberlin.wiwiss.pubby;
 
-import com.hp.hpl.jena.rdf.model.*;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
-import de.fuberlin.wiwiss.pubby.vocab.CONF;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,7 +29,11 @@ public class VocabularyCache {
         this.configuration = configuration;
         Iterator it = configuration.getExternalVocabularyURLs().iterator();
         while (it.hasNext()) {
-            cache.read((String) it.next());
+            String next = (String) it.next();
+            try {
+            } catch (Throwable t) {
+                log.warning("Could not read: " + next);
+            }
         }
     }
 

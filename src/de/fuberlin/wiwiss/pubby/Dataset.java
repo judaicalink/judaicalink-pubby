@@ -1,29 +1,19 @@
 package de.fuberlin.wiwiss.pubby;
 
+import com.hp.hpl.jena.rdf.model.*;
+import com.hp.hpl.jena.util.FileManager;
+import com.hp.hpl.jena.util.FileUtils;
+import com.hp.hpl.jena.vocabulary.XSD;
+import de.fuberlin.wiwiss.pubby.vocab.CONF;
+import de.fuberlin.wiwiss.pubby.vocab.META;
+
+import javax.servlet.ServletContext;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-
-import javax.servlet.ServletContext;
-
-import com.hp.hpl.jena.rdf.model.AnonId;
-import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
-import com.hp.hpl.jena.util.FileManager;
-import com.hp.hpl.jena.util.FileUtils;
-import com.hp.hpl.jena.vocabulary.XSD;
-
-import de.fuberlin.wiwiss.pubby.vocab.CONF;
-import de.fuberlin.wiwiss.pubby.vocab.META;
 
 /**
  * The server's configuration.
@@ -454,6 +444,17 @@ public class Dataset {
         }
         return uri;
     }
+    public String getWebDataResource(String uri) {
+        log.fine("Detecting web data resource for URI: " + uri);
+        Iterator it = getSparqlMappings().iterator();
+        while (it.hasNext()) {
+            SparqlMapping sm = (SparqlMapping) it.next();
+            if (sm.isMappedURI(uri)) {
+                return sm.getWebDataResource(uri);
+            }
+        }
+        return uri;
+    }
 
     public class SparqlMapping {
         private Pattern uriPattern;
@@ -463,13 +464,19 @@ public class Dataset {
         public String getPrimaryResource(String uri) {
             return uriPattern.matcher(uri).replaceAll(primaryResource);
         }
+        public String getWebDataResource(String uri) {
+            return uriPattern.matcher(uri).replaceAll(webDataResource);
+        }
 
-        private String primaryResource;
+        private String primaryResource, webDataResource;
 
         public SparqlMapping(Resource mapping) {
             this.sparqlQuery = mapping.getProperty(CONF.sparqlQuery).getString();
             this.uriPattern = Pattern.compile(mapping.getProperty(CONF.uriPattern).getString());
             this.primaryResource = mapping.getProperty(CONF.primaryResource).getString();
+            if (mapping.getProperty(CONF.webDataResource)!=null) {
+                this.webDataResource = mapping.getProperty(CONF.webDataResource).getString();
+            }
             StmtIterator it = mapping.listProperties(CONF.publishResources);
             while (it.hasNext()) {
                 Statement stmt = it.nextStatement();
