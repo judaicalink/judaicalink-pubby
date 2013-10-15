@@ -1,24 +1,18 @@
 package de.fuberlin.wiwiss.pubby;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.logging.Logger;
-
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.shared.PrefixMapping;
 import com.hp.hpl.jena.shared.impl.PrefixMappingImpl;
 import com.hp.hpl.jena.util.FileManager;
 import com.hp.hpl.jena.vocabulary.DC;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
-
 import de.fuberlin.wiwiss.pubby.vocab.CONF;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.logging.Logger;
 
 /**
  * The server's configuration.
@@ -109,29 +103,43 @@ public class Configuration {
 
 	public MappedResource getMappedResourceFromDatasetURI(String datasetURI) {
 		Iterator it = datasets.iterator();
-		while (it.hasNext()) {
+        Dataset bestMatch = null;
+        while (it.hasNext()) {
 			Dataset dataset = (Dataset) it.next();
 			if (dataset.isDatasetURI(datasetURI)) {
-				return dataset.getMappedResourceFromDatasetURI(datasetURI, this);
+                if (bestMatch == null || bestMatch.getPriority() > dataset.getPriority()) {
+                    bestMatch = dataset;
+                }
 			}
 		}
-		return null;
+        return bestMatch==null?null:bestMatch.getMappedResourceFromDatasetURI(datasetURI, this);
 	}
 
 	public MappedResource getMappedResourceFromRelativeWebURI(String relativeWebURI, boolean isResourceURI) {
 		log.fine("Mapping resource from relative web URI: " + relativeWebURI);
         Iterator it = datasets.iterator();
-		while (it.hasNext()) {
+        Dataset bestMatch = null;
+        while (it.hasNext()) {
 			Dataset dataset = (Dataset) it.next();
 			MappedResource resource = dataset.getMappedResourceFromRelativeWebURI(
 					relativeWebURI, isResourceURI, this);
 			if (resource != null) {
-				log.fine("   Mapped to " + resource.getDatasetURI() + " (Dataset base: " + resource.getDataset().getDatasetBase() +")");
-                return resource;
+				log.fine("   Potentially mapped to " + resource.getDatasetURI() + " (Dataset base: " + resource.getDataset().getDatasetBase() +")");
+                if (bestMatch == null || bestMatch.getPriority() > dataset.getPriority()) {
+                    bestMatch = dataset;
+                }
 			}
 		}
-        log.fine("   Could not be mapped.");
-		return null;
+        if (bestMatch==null) {
+            log.fine("   Could not be mapped.");
+            return null;
+        } else {
+            MappedResource resource = bestMatch.getMappedResourceFromRelativeWebURI(
+                    relativeWebURI, isResourceURI, this);
+            log.fine("   Finally mapped to " + resource.getDatasetURI() + " (Dataset base: " + resource.getDataset().getDatasetBase() +")");
+            return resource;
+        }
+
 	}
 
     public boolean isDataURL(String relativeWebURI) {

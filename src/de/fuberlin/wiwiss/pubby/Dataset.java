@@ -144,12 +144,16 @@ public class Dataset {
 				configuration,
 				this);
 	}
-	
-	public String getDatasetBase() {
-		return config.getProperty(CONF.datasetBase).getResource().getURI();
-	}
-	
-	public boolean getAddSameAsStatements() {
+
+    public String getDatasetBase() {
+        return config.getProperty(CONF.datasetBase).getResource().getURI();
+    }
+    public int getPriority() {
+        return getIntConfigValue(CONF.priority, 0);
+    }
+
+
+    public boolean getAddSameAsStatements() {
 		return getBooleanConfigValue(CONF.addSameAsStatements, false);
 	}
 	
@@ -369,6 +373,23 @@ public class Dataset {
 		}
 		return "true".equals(value.getString());
 	}
+
+    private int getIntConfigValue(Property property, int defaultValue) {
+        if (!config.hasProperty(property)) {
+            return defaultValue;
+        }
+        Literal value = config.getProperty(property).getLiteral();
+        if (XSD.integer.equals(value.getDatatype())) {
+            return value.getInt();
+        }
+        try {
+            int result = Integer.parseInt(value.getString());
+            return result;
+        } catch (NumberFormatException nfe) {
+            log.warning("Could not parse integer value: " + value + " of property: " + property.getLocalName());
+            return defaultValue;
+        }
+    }
 
 	private String fixUnescapedCharacters(String uri) {
 		if (fixUnescapeCharacters.length == 0) {

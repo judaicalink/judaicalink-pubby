@@ -28,7 +28,8 @@ public class CONF {
 
 
     public static final Property datasetBase = m.createProperty(NS + "datasetBase");
-	public static final Property datasetURIPattern = m.createProperty(NS + "datasetURIPattern");
+    public static final Property priority = m.createProperty(NS + "priority");
+    public static final Property datasetURIPattern = m.createProperty(NS + "datasetURIPattern");
     public static final Property webResourcePrefix = m.createProperty(NS + "webResourcePrefix");
     public static final Property webDataPrefix = m.createProperty(NS + "webDataPrefix");
     public static final Property webPagePrefix = m.createProperty(NS + "webPagePrefix");
