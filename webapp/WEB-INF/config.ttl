@@ -223,7 +223,7 @@
 			    OPTIONAL { 
                               ?x a <http://www.europeana.eu/schemas/edm/ProvidedCHO> . 
                               FILTER NOT EXISTS {
-                                ?x <http://purl.org/dc/elements/1.1/type> <http://onto.dm2e.eu/schemas/dm2e/1.1/Page>
+                                ?x <http://purl.org/dc/terms/isPartOf> ?y .
                               } 
                             }.
                         }
