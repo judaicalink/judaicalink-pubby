@@ -11,12 +11,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.Iterator;
 
 /**
@@ -34,6 +34,8 @@ public class ImageServlet extends HttpServlet {
         int height = Integer.parseInt(req.getParameter("height"));
         url = URLDecoder.decode(url,"utf-8");
         BufferedImage buffer = null;
+        ImageIO.setCacheDirectory(new File("/tmp"));
+        ImageIO.setUseCache(true);
 
         try {
 

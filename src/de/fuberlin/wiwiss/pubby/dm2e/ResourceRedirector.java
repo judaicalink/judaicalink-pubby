@@ -11,10 +11,12 @@ public class ResourceRedirector implements URIRedirector {
 
     public String getPageURL(String uri) {
         if (uri.contains("aggregation")) return uri.replaceFirst("aggregation","html/resourcemap");
-        return uri.replaceFirst("resource","html/resourcemap");
+        else if (uri.contains("item")) return uri.replaceFirst("item","html/resourcemap");
+        throw new RuntimeException("Not a valid URI for this redirect: " + uri);
     }
     public String getDataURL(String uri) {
-        if (uri.contains("aggregation")) return uri.replaceFirst("aggregation","resourcemap");
-        return uri.replaceFirst("resource","resourcemap");
+        if (uri.contains("aggregation")) return uri.replaceFirst("aggregation","rdf/resourcemap");
+        else if (uri.contains("item")) return uri.replaceFirst("item","rdf/resourcemap");
+        throw new RuntimeException("Not a valid URI for this redirect: " + uri);
     }
 }

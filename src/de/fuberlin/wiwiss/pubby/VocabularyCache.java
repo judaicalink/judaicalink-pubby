@@ -62,6 +62,8 @@ public class VocabularyCache {
     }
 
     protected String getProperty(String uri, Property prop, String defaultValue, boolean fetch) {
+        log.fine("Fetching property labels");
+        if (1==1) return defaultValue;
         String result = defaultValue;
         try {
             if (fetch && !cache.contains(cache.getResource(uri), prop)) {

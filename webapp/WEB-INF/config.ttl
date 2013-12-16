@@ -64,14 +64,10 @@
     # be shown.
     conf:indexResource <http://data.dm2e.eu/data/dataset/>;
     conf:labelProperty rdfs:label, dc:title, dc:identifier;
-    conf:imageProperty edm:hasView;
+    conf:imageProperty <http://onto.dm2e.eu/schemas/dm2e/1.1/hasAnnotatableVersionAt>;
     conf:showLabels "true";
     conf:loadVocabularyFromURL
-        <http://data.dm2e.eu/edm.rdf>,
-        <http://data.dm2e.eu/crm.rdf>,
-        <http://data.dm2e.eu/dm2e.rdf>,
-        <http://data.dm2e.eu/abc.rdf>,
-        <http://data.dm2e.eu/edmplus.rdf>,
+        <https://dm2e.hu-berlin.de/onto/neologism/schemas/dm2e/1.0.rdf>,
         <http://www.openarchives.org/ore/1.0/terms>,
         <http://dublincore.org/2012/06/14/dcelements.rdf>;
 #    conf:loadVocabularyFromFile
@@ -92,14 +88,14 @@
         conf:addSameAsStatements "true";
         # Will be appended to the conf:webBase to form the public
         # resource URIs; if not present, defaults to ""
-        conf:webResourcePrefix "ingested/list";
+        conf:webResourcePrefix "list";
         # conf:customRedirect "de.fuberlin.wiwiss.pubby.dm2e.ResourceRedirector";
         # Will be appended to the conf:webBase to form the public
         # data URIs; if not present, defaults to "data/"
-        conf:webDataPrefix "data/ingested/list";
+        conf:webDataPrefix "rdf/list";
         # Will be appended to the conf:webBase to form the public
         # page URIs; if not present, defaults to "page/"
-        conf:webPagePrefix "html/ingested/list";
+        conf:webPagePrefix "html/list";
 
         conf:useSparqlMapping [
                     conf:uriPattern "http://data.dm2e.eu/data/list";
@@ -143,14 +139,14 @@
         conf:addSameAsStatements "true";
         # Will be appended to the conf:webBase to form the public
         # resource URIs; if not present, defaults to ""
-        conf:webResourcePrefix "ingested/dataset/";
+        conf:webResourcePrefix "dataset/";
         # conf:customRedirect "de.fuberlin.wiwiss.pubby.dm2e.ResourceRedirector";
         # Will be appended to the conf:webBase to form the public
         # data URIs; if not present, defaults to "data/"
-        conf:webDataPrefix "data/ingested/dataset/";
+        conf:webDataPrefix "rdf/dataset/";
         # Will be appended to the conf:webBase to form the public
         # page URIs; if not present, defaults to "page/"
-        conf:webPagePrefix "html/ingested/dataset/";
+        conf:webPagePrefix "html/dataset/";
 
         conf:useSparqlMapping [
                     conf:uriPattern "http://data.dm2e.eu/data/dataset/([a-z]*/[a-z]*)$";
@@ -202,14 +198,14 @@
         conf:addSameAsStatements "true";
         # Will be appended to the conf:webBase to form the public
         # resource URIs; if not present, defaults to ""
-        conf:webResourcePrefix "ingested/dataset/";
+        conf:webResourcePrefix "dataset/";
         # conf:customRedirect "de.fuberlin.wiwiss.pubby.dm2e.ResourceRedirector";
         # Will be appended to the conf:webBase to form the public
         # data URIs; if not present, defaults to "data/"
-        conf:webDataPrefix "data/ingested/dataset/";
+        conf:webDataPrefix "rdf/dataset/";
         # Will be appended to the conf:webBase to form the public
         # page URIs; if not present, defaults to "page/"
-        conf:webPagePrefix "html/ingested/dataset/";
+        conf:webPagePrefix "html/dataset/";
 
         conf:useSparqlMapping [
                     conf:uriPattern "http://data.dm2e.eu/data/dataset/([a-z]*/[a-z]*/[0-9]*)$";
@@ -259,6 +255,67 @@
     ];
 
 
+# Dataset configuration section #2 (Default)
+#
+    conf:dataset [
+        # SPARQL endpoint URL of the dataset
+        conf:sparqlEndpoint <http://lelystad.informatik.uni-mannheim.de:3040/ds/sparql>;
+        # Default graph name to query (not necessary for most endpoints)
+        # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
+        # Common URI prefix of all resource URIs in the SPARQL dataset
+        conf:datasetBase <http://data.dm2e.eu/data/>;
+        conf:datasetURIPattern "(aggregation|item)/(.*)$";
+        conf:priority "2";
+        conf:addSameAsStatements "true";
+        # Will be appended to the conf:webBase to form the public
+        # resource URIs; if not present, defaults to ""
+        conf:webResourcePrefix "";
+        # conf:customRedirect "de.fuberlin.wiwiss.pubby.dm2e.ResourceRedirector";
+        # Will be appended to the conf:webBase to form the public
+        # data URIs; if not present, defaults to "data/"
+        conf:webDataPrefix "rdf/resourcemap/";
+        # Will be appended to the conf:webBase to form the public
+        # page URIs; if not present, defaults to "page/"
+        conf:webPagePrefix "html/resourcemap/";
+
+        conf:useSparqlMapping [
+                    conf:uriPattern "http://data.dm2e.eu/data/(item|aggregation)/(.*)";
+                    conf:sparqlQuery '''CONSTRUCT {
+                        ?s ?p ?o .
+			?s a <http://example.org/default> .
+                    } WHERE {
+                        graph ?g { ?s ?p ?o . }
+                        FILTER (
+                            ?s = <http://data.dm2e.eu/data/item/$2> ||  ?o = <http://data.dm2e.eu/data/item/$2>
+                         || ?s = <http://data.dm2e.eu/data/aggregation/$2> ||  ?o = <http://data.dm2e.eu/data/aggregation/$2>
+                       )
+                    } ''';
+                    conf:publishResources
+                        "http://data.dm2e.eu/data/aggregation/$2", "http://data.dm2e.eu/data/item/$2";
+                    conf:primaryResource
+                        "http://data.dm2e.eu/data/item/$2";
+                ];
+
+        # Fixes an issue with the server running behind an Apache proxy;
+        # can be ignored otherwise
+        conf:fixUnescapedCharacters "(),'!$&*+;=@";
+
+        # include metadata
+        conf:metadataTemplate "metadata.ttl";
+
+        # configure your metadata here
+        # Use properties with the meta: prefix where the property name
+        # corresponds to the placeholder URIs in metadata.ttl that begin
+        # with about:metadata:metadata:
+        # Examples for such properties are:
+#        meta:pubbyUser <URI of the data publisher who uses this Pubby>;
+#        meta:pubbyOperator <URI of the service provider who operates this Pubby>;
+#        meta:endpointUser <URI of the data publisher who uses the SPARQL endpoint queried by this Pubby>;
+#        meta:endpointOperator <URI of the service provider who operates the SPARQL endpoint>;
+#        meta:endpointDataset <URI of the linked dataset that is exposed via the SPARQL endpoint>;
+    ];
+
+
 
 # Dataset configuration section #2 (Default)
 #
@@ -273,14 +330,14 @@
         conf:addSameAsStatements "true";
         # Will be appended to the conf:webBase to form the public
         # resource URIs; if not present, defaults to ""
-        conf:webResourcePrefix "ingested/";
+        conf:webResourcePrefix "";
         # conf:customRedirect "de.fuberlin.wiwiss.pubby.dm2e.ResourceRedirector";
         # Will be appended to the conf:webBase to form the public
         # data URIs; if not present, defaults to "data/"
-        conf:webDataPrefix "data/ingested/";
+        conf:webDataPrefix "rdf/";
         # Will be appended to the conf:webBase to form the public
         # page URIs; if not present, defaults to "page/"
-        conf:webPagePrefix "html/ingested/";
+        conf:webPagePrefix "html/";
 
         conf:useSparqlMapping [
                     conf:uriPattern "http://data.dm2e.eu/data/(.*)";
