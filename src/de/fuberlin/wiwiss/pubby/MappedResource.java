@@ -48,6 +48,7 @@ public class MappedResource {
 	/**
 	 * @return the HTML page describing the resource on the public Web server
 	 */
+
 	public String getPageURL() {
         if (getDataset().hasCustomRedirect()) return getDataset().getCustomRedirector().getPageURL(getWebURI());
 		return serverConfig.getWebApplicationBaseURI() + datasetConfig.getWebPagePrefix() + relativeWebURI;
