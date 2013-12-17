@@ -48,7 +48,7 @@ public class Configuration {
 		datasets = new ArrayList();
 		it = model.listStatements(config, CONF.dataset, (RDFNode) null);
 		while (it.hasNext()) {
-			datasets.add(new Dataset(it.nextStatement().getResource()));
+			datasets.add(new Dataset(this, it.nextStatement().getResource()));
 		}
 		labelProperties = new ArrayList();
 		it = model.listStatements(config, CONF.labelProperty, (RDFNode) null);

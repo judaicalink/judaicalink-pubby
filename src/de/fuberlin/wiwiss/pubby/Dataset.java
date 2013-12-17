@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  */
 public class Dataset {
 	private final Model model;
-	private final Resource config;
+	private final Resource dsConfig;
 	private final DataSource dataSource;
 	private final Pattern datasetURIPattern;
 	private final char[] fixUnescapeCharacters;
@@ -37,20 +37,24 @@ public class Dataset {
 	private Resource currentDocRepr;
     private final List sparqlMappings;
     private URIRedirector redirector;
+    private String endpoint;
+    private String defaultGraph;
+    private Configuration config;
 
     private Logger log = Logger.getLogger(getClass().getName());
 	
-	public Dataset(Resource config) {
-		model = config.getModel();
-		this.config = config;
-		if (config.hasProperty(CONF.datasetURIPattern)) {
+	public Dataset(Configuration config, Resource dsConfig) {
+		model = dsConfig.getModel();
+		this.dsConfig = dsConfig;
+        this.config = config;
+		if (dsConfig.hasProperty(CONF.datasetURIPattern)) {
 			datasetURIPattern = Pattern.compile(
-					config.getProperty(CONF.datasetURIPattern).getString());
+					dsConfig.getProperty(CONF.datasetURIPattern).getString());
 		} else {
 			datasetURIPattern = Pattern.compile(".*");
 		}
-		if (config.hasProperty(CONF.fixUnescapedCharacters)) {
-			String chars = config.getProperty(CONF.fixUnescapedCharacters).getString();
+		if (dsConfig.hasProperty(CONF.fixUnescapedCharacters)) {
+			String chars = dsConfig.getProperty(CONF.fixUnescapedCharacters).getString();
 			fixUnescapeCharacters = new char[chars.length()];
 			for (int i = 0; i < chars.length(); i++) {
 				fixUnescapeCharacters[i] = chars.charAt(i);
@@ -58,25 +62,25 @@ public class Dataset {
 		} else {
 			fixUnescapeCharacters = new char[0];
 		}
-		if (config.hasProperty(CONF.rdfDocumentMetadata)) {
-			rdfDocumentMetadataTemplate = config.getProperty(CONF.rdfDocumentMetadata).getResource();
+		if (dsConfig.hasProperty(CONF.rdfDocumentMetadata)) {
+			rdfDocumentMetadataTemplate = dsConfig.getProperty(CONF.rdfDocumentMetadata).getResource();
 		} else {
 			rdfDocumentMetadataTemplate = null;
 		}
-		if (config.hasProperty(CONF.metadataTemplate)) {
-			metadataTemplate = config.getProperty(CONF.metadataTemplate).getString();
+		if (dsConfig.hasProperty(CONF.metadataTemplate)) {
+			metadataTemplate = dsConfig.getProperty(CONF.metadataTemplate).getString();
 		} else {
 			metadataTemplate = null;
 		}
-		if (config.hasProperty(CONF.sparqlEndpoint)) {
-			String endpointURL = config.getProperty(CONF.sparqlEndpoint).getResource().getURI();
-			String defaultGraph = config.hasProperty(CONF.sparqlDefaultGraph)
-					? config.getProperty(CONF.sparqlDefaultGraph).getResource().getURI()
+		if (dsConfig.hasProperty(CONF.sparqlEndpoint)) {
+			endpoint = dsConfig.getProperty(CONF.sparqlEndpoint).getResource().getURI();
+            defaultGraph = dsConfig.hasProperty(CONF.sparqlDefaultGraph)
+					? dsConfig.getProperty(CONF.sparqlDefaultGraph).getResource().getURI()
 					: null;
-			dataSource = new RemoteSPARQLDataSource(endpointURL, defaultGraph, this);
+			dataSource = new RemoteSPARQLDataSource(endpoint, defaultGraph, this);
 		} else {
 			Model data = ModelFactory.createDefaultModel();
-			StmtIterator it = config.listProperties(CONF.loadRDF);
+			StmtIterator it = dsConfig.listProperties(CONF.loadRDF);
 			while (it.hasNext()) {
 				Statement stmt = it.nextStatement();
 				FileManager.get().readModel(data, stmt.getResource().getURI());
@@ -84,14 +88,16 @@ public class Dataset {
 			dataSource = new ModelDataSource(data);
 		}
         sparqlMappings = new ArrayList();
-        StmtIterator it = model.listStatements(config, CONF.useSparqlMapping, (RDFNode) null);
+        StmtIterator it = model.listStatements(dsConfig, CONF.useSparqlMapping, (RDFNode) null);
         while (it.hasNext()) {
             sparqlMappings.add(new SparqlMapping(it.nextStatement().getResource()));
         }
         redirector = null;
-        if (config.hasProperty(CONF.customRedirect)) {
+        if (dsConfig.hasProperty(CONF.customRedirect)) {
             try {
-                redirector = (URIRedirector) Class.forName(config.getProperty(CONF.customRedirect).getString()).newInstance();
+                redirector = (URIRedirector) Class.forName(dsConfig.getProperty(CONF.customRedirect).getString()).newInstance();
+                redirector.setConfiguration(config);
+                redirector.setDataset(this);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             } catch (InstantiationException e) {
@@ -146,7 +152,7 @@ public class Dataset {
 	}
 
     public String getDatasetBase() {
-        return config.getProperty(CONF.datasetBase).getResource().getURI();
+        return dsConfig.getProperty(CONF.datasetBase).getResource().getURI();
     }
     public int getPriority() {
         return getIntConfigValue(CONF.priority, 0);
@@ -160,27 +166,35 @@ public class Dataset {
 	public DataSource getDataSource() {
 		return dataSource;
 	}
+
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public String getDefaultGraph() {
+        return defaultGraph;
+    }
 	
 	public boolean redirectRDFRequestsToEndpoint() {
 		return getBooleanConfigValue(CONF.redirectRDFRequestsToEndpoint, false);
 	}
 
     public String getWebResourcePrefix() {
-        if (config.hasProperty(CONF.webResourcePrefix)) {
-            return config.getProperty(CONF.webResourcePrefix).getString();
+        if (dsConfig.hasProperty(CONF.webResourcePrefix)) {
+            return dsConfig.getProperty(CONF.webResourcePrefix).getString();
         }
         return "";
     }
     public String getWebDataPrefix() {
-        if (config.hasProperty(CONF.webDataPrefix)) {
-            return config.getProperty(CONF.webDataPrefix).getString();
+        if (dsConfig.hasProperty(CONF.webDataPrefix)) {
+            return dsConfig.getProperty(CONF.webDataPrefix).getString();
         }
         return "data/";
     }
 
     public String getWebPagePrefix() {
-        if (config.hasProperty(CONF.webPagePrefix)) {
-            return config.getProperty(CONF.webPagePrefix).getString();
+        if (dsConfig.hasProperty(CONF.webPagePrefix)) {
+            return dsConfig.getProperty(CONF.webPagePrefix).getString();
         }
         return "page/";
     }
@@ -328,11 +342,11 @@ public class Dataset {
 		if (phPackage.equals("config")) {
 			// look for requested property in the dataset config
 			Property p  = model.createProperty(CONF.NS + phName);
-			if (config.hasProperty(p))
-				return config.getProperty(p).getObject();
+			if (dsConfig.hasProperty(p))
+				return dsConfig.getProperty(p).getObject();
 			
 			// find pointer to the global configuration set...
-			StmtIterator it = config.getModel().listStatements(null, CONF.dataset, config);
+			StmtIterator it = dsConfig.getModel().listStatements(null, CONF.dataset, dsConfig);
 			Statement ptrStmt = it.nextStatement();
 			if (ptrStmt == null) return null;
 			
@@ -346,11 +360,11 @@ public class Dataset {
 		if (phPackage.equals("metadata")) {
 			// look for requested property in the dataset config
 			Property p  = model.createProperty(META.NS + phName);
-			if (config.hasProperty(p))
-				return config.getProperty(p).getObject();
+			if (dsConfig.hasProperty(p))
+				return dsConfig.getProperty(p).getObject();
 			
 			// find pointer to the global configuration set...
-			StmtIterator it = config.getModel().listStatements(null, CONF.dataset, config);
+			StmtIterator it = dsConfig.getModel().listStatements(null, CONF.dataset, dsConfig);
 			Statement ptrStmt = it.nextStatement();
 			if (ptrStmt == null) return null;
 			
@@ -364,10 +378,10 @@ public class Dataset {
 	}
 	
 	private boolean getBooleanConfigValue(Property property, boolean defaultValue) {
-		if (!config.hasProperty(property)) {
+		if (!dsConfig.hasProperty(property)) {
 			return defaultValue;
 		}
-		Literal value = config.getProperty(property).getLiteral();
+		Literal value = dsConfig.getProperty(property).getLiteral();
 		if (XSD.xboolean.equals(value.getDatatype())) {
 			return value.getBoolean();
 		}
@@ -375,10 +389,10 @@ public class Dataset {
 	}
 
     private int getIntConfigValue(Property property, int defaultValue) {
-        if (!config.hasProperty(property)) {
+        if (!dsConfig.hasProperty(property)) {
             return defaultValue;
         }
-        Literal value = config.getProperty(property).getLiteral();
+        Literal value = dsConfig.getProperty(property).getLiteral();
         if (XSD.integer.equals(value.getDatatype())) {
             return value.getInt();
         }

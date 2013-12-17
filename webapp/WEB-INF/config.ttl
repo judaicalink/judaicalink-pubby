@@ -75,7 +75,7 @@
 
 
 
-# Dataset configuration section #2 (Default)
+# List of Collections
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
@@ -125,7 +125,7 @@
 
 
 
-# Dataset configuration section #2 (Default)
+# List of versioned datasets for a collection
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
@@ -184,7 +184,7 @@
     ];
 
 
-# Dataset configuration section #2 (Default)
+# List of toplevel CHOs in a versioned dataset
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
@@ -255,7 +255,7 @@
     ];
 
 
-# Dataset configuration section #2 (Default)
+# Resourcemap redirect for item(CHO) and aggregation
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
@@ -316,7 +316,7 @@
     ];
 
 
-# Dataset configuration section #2 (Default)
+# Resourcemap implementation for item(CHO) and aggregation
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
@@ -340,27 +340,27 @@
         conf:webPagePrefix "html/resourcemap/";
 
         conf:useSparqlMapping [
-                    conf:uriPattern "http://data.dm2e.eu/data/rdf/resourcemap/(.*)";
+                    conf:uriPattern "http://data.dm2e.eu/data/rdf/resourcemap/([a-z]*)/([a-z]*)/(.*)/([0-9]*)";
                     conf:sparqlQuery '''CONSTRUCT {
                         ?s ?p ?o .
                         ?av <http://purl.org/dc/elements/1.1/format> ?format .
 			?s a <http://example.org/resourcemap> .
                     } WHERE {
-                        graph ?g {
+                        graph <http://data.dm2e.eu/data/dataset/$1/$2/$4> {
                             ?s ?p ?o .
                             OPTIONAL {
                                 ?s <http://onto.dm2e.eu/schemas/dm2e/1.1/hasAnnotatableVersionAt> ?av. ?av <http://purl.org/dc/elements/1.1/format> ?format
                             }
                         }
                         FILTER (
-                            ?s = <http://data.dm2e.eu/data/item/$1> ||  ?o = <http://data.dm2e.eu/data/item/$1>
-                         || ?s = <http://data.dm2e.eu/data/aggregation/$1> ||  ?o = <http://data.dm2e.eu/data/aggregation/$1>
+                            ?s = <http://data.dm2e.eu/data/item/$1/$2/$3> ||  ?o = <http://data.dm2e.eu/data/item/$1/$2/$3>
+                         || ?s = <http://data.dm2e.eu/data/aggregation/$1/$2/$3> ||  ?o = <http://data.dm2e.eu/data/aggregation/$1/$2/$3>
                        )
                     } ''';
                     conf:publishResources
-                        "http://data.dm2e.eu/data/aggregation/$1", "http://data.dm2e.eu/data/item/$1";
+                        "http://data.dm2e.eu/data/aggregation/$1/$2/$3", "http://data.dm2e.eu/data/item/$1/$2/$3";
                     conf:primaryResource
-                        "http://data.dm2e.eu/data/item/$1";
+                        "http://data.dm2e.eu/data/item/$1/$2/$3";
                 ];
 
         # Fixes an issue with the server running behind an Apache proxy;
@@ -384,7 +384,7 @@
 
 
 
-# Dataset configuration section #2 (Default)
+# Default for data URIs
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
@@ -442,7 +442,7 @@
 #        meta:endpointDataset <URI of the linked dataset that is exposed via the SPARQL endpoint>;
     ];
 
-# Dataset configuration section #2 (Default)
+# Omnom Data
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
