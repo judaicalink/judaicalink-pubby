@@ -44,7 +44,6 @@ public class Dataset {
     private Logger log = Logger.getLogger(getClass().getName());
 	
 	public Dataset(Configuration config, Resource dsConfig) {
-        log.fine("Loading dataset...");
         model = dsConfig.getModel();
 		this.dsConfig = dsConfig;
         this.config = config;

@@ -65,8 +65,13 @@ public abstract class BaseServlet extends HttpServlet {
 						resource.getDatasetURI()),
 				config).getTranslated(resource);
 	}
-	
-	protected Model getAnonymousPropertyValues(MappedResource resource, 
+
+    protected String getSPARQLQuery(MappedResource resource) {
+        return  resource.getDataset().getSparqlQuery(resource.getDatasetURI());
+    }
+
+
+    protected Model getAnonymousPropertyValues(MappedResource resource,
 			Property property, boolean isInverse) {
 		return new ModelTranslator(
 				resource.getDataset().getDataSource().getAnonymousPropertyValues(

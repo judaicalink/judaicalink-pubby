@@ -116,7 +116,7 @@ public class Configuration {
 	}
 
 	public MappedResource getMappedResourceFromRelativeWebURI(String relativeWebURI, boolean isResourceURI) {
-		log.fine("WOHA  Mapping resource from relative web URI: " + relativeWebURI);
+		log.fine("Mapping resource from relative web URI: " + relativeWebURI);
         Iterator it = datasets.iterator();
         Dataset bestMatch = null;
         while (it.hasNext()) {

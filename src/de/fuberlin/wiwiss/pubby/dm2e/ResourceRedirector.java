@@ -58,9 +58,22 @@ public class ResourceRedirector implements URIRedirector {
         while (rs.hasNext()) {
             String graph = rs.next().get("g").toString();
             String version = graph.substring(graph.lastIndexOf("/")+1);
-            log.fine("Graph: " + graph + " Version: " + version);
+            String providerDataset  = uri.substring(uri.indexOf("/"),nthOccurrence(uri,'/',2)+1);
+
+            log.fine("Graph: " + graph + " Version: " + version + " Provider/Dataset: " + providerDataset);
+            if (!graph.contains(providerDataset)) {
+                log.fine("Sanity check failed, provider ID and dataset ID have to be correct.");
+                continue;
+            }
             return version;
         }
         return "-1";
+    }
+
+    public static int nthOccurrence(String str, char c, int n) {
+        int pos = str.indexOf(c, 0);
+        while (n-- > 0 && pos != -1)
+            pos = str.indexOf(c, pos+1);
+        return pos;
     }
 }

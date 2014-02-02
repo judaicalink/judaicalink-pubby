@@ -74,7 +74,7 @@
         <http://dublincore.org/2012/06/14/dcelements.rdf>;
 #    conf:loadVocabularyFromFile
 #        "";
-    conf:defaultEndpoint <http://localhost:19997/dm2e-direct/sparql>;
+    conf:defaultEndpoint <http://localhost:9997/dm2e-direct/sparql>;
 
 
 
