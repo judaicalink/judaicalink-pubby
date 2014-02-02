@@ -44,7 +44,8 @@ public class Dataset {
     private Logger log = Logger.getLogger(getClass().getName());
 	
 	public Dataset(Configuration config, Resource dsConfig) {
-		model = dsConfig.getModel();
+        log.fine("Loading dataset...");
+        model = dsConfig.getModel();
 		this.dsConfig = dsConfig;
         this.config = config;
 		if (dsConfig.hasProperty(CONF.datasetURIPattern)) {
@@ -73,7 +74,18 @@ public class Dataset {
 			metadataTemplate = null;
 		}
 		if (dsConfig.hasProperty(CONF.sparqlEndpoint)) {
-			endpoint = dsConfig.getProperty(CONF.sparqlEndpoint).getResource().getURI();
+			endpoint = null;
+            if (dsConfig.getProperty(CONF.sparqlEndpoint).getObject().isResource()) {
+                endpoint = dsConfig.getProperty(CONF.sparqlEndpoint).getResource().getURI();
+            } else {
+                endpoint = config.getDefaultEndpoint();
+            }
+            if (endpoint==null) {
+                log.severe("No endpoint configured for dataset: " + getDatasetBase());
+                throw new RuntimeException("No default endpoint and no dataset endpoint has been defined!");
+            } else {
+                log.fine("Endpoint: " + endpoint);
+            }
             defaultGraph = dsConfig.hasProperty(CONF.sparqlDefaultGraph)
 					? dsConfig.getProperty(CONF.sparqlDefaultGraph).getResource().getURI()
 					: null;

@@ -37,6 +37,7 @@ public class Configuration {
     private final Logger log = Logger.getLogger(getClass().getName());
 	
 	public Configuration(Model configurationModel) {
+        log.fine("Loading configuration ...");
 		model = configurationModel;
 		StmtIterator it = model.listStatements(null, RDF.type, CONF.Configuration);
 		if (!it.hasNext()) {
@@ -83,7 +84,6 @@ public class Configuration {
             externalVocabularyURLs.add(it.nextStatement().getObject().asResource().getURI());
         }
 
-
         prefixes = new PrefixMappingImpl();
 		if (config.hasProperty(CONF.usePrefixesFrom)) {
 			it = config.listProperties(CONF.usePrefixesFrom);
@@ -116,7 +116,7 @@ public class Configuration {
 	}
 
 	public MappedResource getMappedResourceFromRelativeWebURI(String relativeWebURI, boolean isResourceURI) {
-		log.fine("Mapping resource from relative web URI: " + relativeWebURI);
+		log.fine("WOHA  Mapping resource from relative web URI: " + relativeWebURI);
         Iterator it = datasets.iterator();
         Dataset bestMatch = null;
         while (it.hasNext()) {
@@ -175,15 +175,22 @@ public class Configuration {
 	public Collection getImageProperties() {
 		return imageProperties;
 	}
-	
-	public String getDefaultLanguage() {
-		if (!config.hasProperty(CONF.defaultLanguage)) {
-			return null;
-		}
-		return config.getProperty(CONF.defaultLanguage).getString();
-	}
-	
-	public MappedResource getIndexResource() {
+
+    public String getDefaultLanguage() {
+        if (!config.hasProperty(CONF.defaultLanguage)) {
+            return null;
+        }
+        return config.getProperty(CONF.defaultLanguage).getString();
+    }
+
+    public String getDefaultEndpoint() {
+        if (!config.hasProperty(CONF.defaultEndpoint)) {
+            return null;
+        }
+        return config.getProperty(CONF.defaultEndpoint).getResource().getURI();
+    }
+
+    public MappedResource getIndexResource() {
 		if (!config.hasProperty(CONF.indexResource)) {
 			return null;
 		}

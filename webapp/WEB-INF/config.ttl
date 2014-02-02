@@ -40,8 +40,10 @@
 @prefix wgs84: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
 @prefix xalan: <http://xml.apache.org/xalan> .
 @prefix tei2edm: <http://sbb.spk-berlin.de/dm2e/tei2edm> .
-@prefix dm2e: <http://data.dm2e.eu/schemas/dm2e/0.1/> .
+@prefix dm2e11: <http://onto.dm2e.eu/schemas/dm2e/1.1/> .
+@prefix dm2e: <http://onto.dm2e.eu/schemas/dm2e/> .
 @prefix dct: <http://purl.org/dc/terms/> .
+@prefix bibo: <http://purl.org/ontology/bibo/> .
 
 
 # Server configuration section
@@ -65,13 +67,14 @@
     conf:indexResource <http://data.dm2e.eu/data/list>;
     conf:labelProperty rdfs:label, dc:title, dc:identifier;
     conf:imageProperty <http://onto.dm2e.eu/schemas/dm2e/1.1/hasAnnotatableVersionAt>;
-    conf:showLabels "true";
+    conf:showLabels "false";
     conf:loadVocabularyFromURL
         <https://dm2e.hu-berlin.de/onto/neologism/schemas/dm2e/1.0.rdf>,
         <http://www.openarchives.org/ore/1.0/terms>,
         <http://dublincore.org/2012/06/14/dcelements.rdf>;
 #    conf:loadVocabularyFromFile
 #        "";
+    conf:defaultEndpoint <http://localhost:19997/dm2e-direct/sparql>;
 
 
 
@@ -79,13 +82,13 @@
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
-        conf:sparqlEndpoint <http://lelystad.informatik.uni-mannheim.de:3040/ds/sparql>;
+        conf:sparqlEndpoint "default";
         # Default graph name to query (not necessary for most endpoints)
         # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
         # Common URI prefix of all resource URIs in the SPARQL dataset
         conf:datasetBase <http://data.dm2e.eu/data/list>;
         conf:priority "1";
-        conf:addSameAsStatements "true";
+        conf:addSameAsStatements "false";
         # Will be appended to the conf:webBase to form the public
         # resource URIs; if not present, defaults to ""
         conf:webResourcePrefix "list";
@@ -129,14 +132,14 @@
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
-        conf:sparqlEndpoint <http://lelystad.informatik.uni-mannheim.de:3040/ds/sparql>;
+        conf:sparqlEndpoint "default";
         # Default graph name to query (not necessary for most endpoints)
         # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
         # Common URI prefix of all resource URIs in the SPARQL dataset
         conf:datasetBase <http://data.dm2e.eu/data/dataset/>;
         conf:datasetURIPattern "([a-z]*/[a-z]*)$";
         conf:priority "1";
-        conf:addSameAsStatements "true";
+        conf:addSameAsStatements "false";
         # Will be appended to the conf:webBase to form the public
         # resource URIs; if not present, defaults to ""
         conf:webResourcePrefix "dataset/";
@@ -188,14 +191,14 @@
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
-        conf:sparqlEndpoint <http://lelystad.informatik.uni-mannheim.de:3040/ds/sparql>;
+        conf:sparqlEndpoint "default";
         # Default graph name to query (not necessary for most endpoints)
         # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
         # Common URI prefix of all resource URIs in the SPARQL dataset
         conf:datasetBase <http://data.dm2e.eu/data/dataset/>;
         conf:datasetURIPattern "([a-z]*/[a-z]*/.*)$";
         conf:priority "2";
-        conf:addSameAsStatements "true";
+        conf:addSameAsStatements "false";
         # Will be appended to the conf:webBase to form the public
         # resource URIs; if not present, defaults to ""
         conf:webResourcePrefix "dataset/";
@@ -216,11 +219,11 @@
                     } WHERE {
                         graph ?g {
                             ?s ?p ?o .
-			    OPTIONAL { 
+			    OPTIONAL {
                               ?x a <http://www.europeana.eu/schemas/edm/ProvidedCHO> . 
                               FILTER NOT EXISTS {
-                                ?x <http://purl.org/dc/terms/isPartOf> ?y .
-                              } 
+                                 ?x <http://purl.org/dc/terms/isPartOf> ?y .
+                              }
                             }.
                         }
                         FILTER (
@@ -259,14 +262,14 @@
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
-        conf:sparqlEndpoint <http://lelystad.informatik.uni-mannheim.de:3040/ds/sparql>;
+        conf:sparqlEndpoint "default";
         # Default graph name to query (not necessary for most endpoints)
         # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
         # Common URI prefix of all resource URIs in the SPARQL dataset
         conf:datasetBase <http://data.dm2e.eu/data/>;
         conf:datasetURIPattern "(aggregation|item)/(.*)$";
         conf:priority "2";
-        conf:addSameAsStatements "true";
+        conf:addSameAsStatements "false";
         # Will be appended to the conf:webBase to form the public
         # resource URIs; if not present, defaults to ""
         conf:webResourcePrefix "";
@@ -284,7 +287,9 @@
                         ?s ?p ?o .
 			?s a <http://example.org/NEVER> .
                     } WHERE {
-                        graph ?g { ?s ?p ?o . }
+                        GRAPH ?g {
+                        ?s ?p ?o .
+                        }
                         FILTER (
                             ?s = <http://data.dm2e.eu/data/item/$2> ||  ?o = <http://data.dm2e.eu/data/item/$2>
                          || ?s = <http://data.dm2e.eu/data/aggregation/$2> ||  ?o = <http://data.dm2e.eu/data/aggregation/$2>
@@ -320,14 +325,14 @@
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
-        conf:sparqlEndpoint <http://lelystad.informatik.uni-mannheim.de:3040/ds/sparql>;
+        conf:sparqlEndpoint "default";
         # Default graph name to query (not necessary for most endpoints)
         # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
         # Common URI prefix of all resource URIs in the SPARQL dataset
         conf:datasetBase <http://data.dm2e.eu/data/rdf/resourcemap/>;
         # conf:datasetURIPattern "(aggregation|item)/(.*)$";
         conf:priority "2";
-        conf:addSameAsStatements "true";
+        conf:addSameAsStatements "false";
         # Will be appended to the conf:webBase to form the public
         # resource URIs; if not present, defaults to ""
         conf:webResourcePrefix "rdf/resourcemap/";
@@ -388,13 +393,13 @@
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
-        conf:sparqlEndpoint <http://lelystad.informatik.uni-mannheim.de:3040/ds/sparql>;
+        conf:sparqlEndpoint "default";
         # Default graph name to query (not necessary for most endpoints)
         # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
         # Common URI prefix of all resource URIs in the SPARQL dataset
         conf:datasetBase <http://data.dm2e.eu/data/>;
         conf:priority "3";
-        conf:addSameAsStatements "true";
+        conf:addSameAsStatements "false";
         # Will be appended to the conf:webBase to form the public
         # resource URIs; if not present, defaults to ""
         conf:webResourcePrefix "";
@@ -409,13 +414,20 @@
         conf:useSparqlMapping [
                     conf:uriPattern "http://data.dm2e.eu/data/(.*)";
                     conf:sparqlQuery '''CONSTRUCT {
-                        ?s ?p ?o .
-			?s a <http://example.org/default> .
+                             <http://data.dm2e.eu/data/$1> ?p1 ?o1.
+                             ?s2 ?p2 <http://data.dm2e.eu/data/$1> .
                     } WHERE {
-                        graph ?g { ?s ?p ?o . }
-                        FILTER (
-                            ?s = <http://data.dm2e.eu/data/$1> ||  ?o = <http://data.dm2e.eu/data/$1>
-                        )
+                        GRAPH ?g {
+                            OPTIONAL { <http://data.dm2e.eu/data/$1> ?p1 ?o1 . }
+                            OPTIONAL {
+                                ?s2 ?p2 <http://data.dm2e.eu/data/$1> . 
+                                # kba Thu Jan 30 14:39:46 CET 2014
+                                # This must be faster for OAI so we skip non-top elements
+                                FILTER NOT EXISTS {
+                                    ?s2 <http://purl.org/dc/terms/isPartOf> ?y .
+                                }
+                            }
+                        }
                     } ''';
                     conf:publishResources
                         "http://data.dm2e.eu/data/$1";
@@ -446,7 +458,7 @@
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
-        conf:sparqlEndpoint <http://lelystad.informatik.uni-mannheim.de:3040/ds/sparql>;
+        conf:sparqlEndpoint "default";
         # Default graph name to query (not necessary for most endpoints)
         # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
         # Common URI prefix of all resource URIs in the SPARQL dataset

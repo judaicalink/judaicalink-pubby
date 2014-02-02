@@ -24,9 +24,14 @@ public class VocabularyCache {
     private Model cache = ModelFactory.createDefaultModel();
     private Map labelCache = new HashMap();
     private Map descriptionCache = new HashMap();
+    private boolean deactivated = false;
 
     public VocabularyCache(Configuration configuration) {
         this.configuration = configuration;
+        if (!configuration.showLabels()) {
+            deactivated = true;
+            return;
+        }
         Iterator it = configuration.getExternalVocabularyURLs().iterator();
         while (it.hasNext()) {
             String next = (String) it.next();
@@ -38,10 +43,12 @@ public class VocabularyCache {
     }
 
     public String getLabel(String uri) {
+        if (deactivated) return uri;
         return getLabel(uri, configuration.getDefaultLanguage());
     }
 
     public String getLabel(String uri, String language) {
+        if (deactivated) return uri;
         if (labelCache.containsKey(uri)) return (String) labelCache.get(uri);
         String label = getProperty(uri, RDFS.label, uri, true);
         labelCache.put(uri,label);
@@ -50,10 +57,12 @@ public class VocabularyCache {
     }
 
     public String getDescription(String uri) {
-           return getDescription(uri,configuration.getDefaultLanguage());
+        if (deactivated) return "";
+        return getDescription(uri,configuration.getDefaultLanguage());
     }
 
     public String getDescription(String uri, String language) {
+        if (deactivated) return "";
         if (descriptionCache.containsKey(uri)) return (String) descriptionCache.get(uri);
         String desc = getProperty(uri, RDFS.comment, "", true);
         descriptionCache.put(uri,desc);
@@ -63,7 +72,6 @@ public class VocabularyCache {
 
     protected String getProperty(String uri, Property prop, String defaultValue, boolean fetch) {
         log.fine("Fetching property labels");
-        if (1==1) return defaultValue;
         String result = defaultValue;
         try {
             if (fetch && !cache.contains(cache.getResource(uri), prop)) {
