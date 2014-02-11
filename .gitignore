@@ -1,3 +1,4 @@
-webapp/WEB-INF/classes
-pubby-*.zip
-pubby.war
+target
+.settings
+.classpath
+.project
