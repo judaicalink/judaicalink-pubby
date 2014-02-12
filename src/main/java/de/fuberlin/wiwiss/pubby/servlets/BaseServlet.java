@@ -1,23 +1,20 @@
 package de.fuberlin.wiwiss.pubby.servlets;
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Logger;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.util.FileManager;
+import de.fuberlin.wiwiss.pubby.Configuration;
+import de.fuberlin.wiwiss.pubby.MappedResource;
+import de.fuberlin.wiwiss.pubby.ModelTranslator;
+import org.apache.velocity.context.Context;
 
 import javax.servlet.ServletException;
 import javax.servlet.UnavailableException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.velocity.context.Context;
-
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.util.FileManager;
-
-import de.fuberlin.wiwiss.pubby.Configuration;
-import de.fuberlin.wiwiss.pubby.MappedResource;
-import de.fuberlin.wiwiss.pubby.ModelTranslator;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * An abstract base servlet for servlets that manage a namespace of resources.
@@ -66,15 +63,20 @@ public abstract class BaseServlet extends HttpServlet {
 		return new ModelTranslator(
 				resource.getDataset().getDataSource().getResourceDescription(
 						resource.getDatasetURI()),
-				config).getTranslated();
+				config).getTranslated(resource);
 	}
-	
-	protected Model getAnonymousPropertyValues(MappedResource resource, 
+
+    protected String getSPARQLQuery(MappedResource resource) {
+        return  resource.getDataset().getSparqlQuery(resource.getDatasetURI());
+    }
+
+
+    protected Model getAnonymousPropertyValues(MappedResource resource,
 			Property property, boolean isInverse) {
 		return new ModelTranslator(
 				resource.getDataset().getDataSource().getAnonymousPropertyValues(
 						resource.getDatasetURI(), property, isInverse),
-				config).getTranslated();
+				config).getTranslated(resource);
 	}
 	
 	protected abstract boolean doGet(

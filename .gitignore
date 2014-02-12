@@ -2,3 +2,7 @@ target
 .settings
 .classpath
 .project
+webapp/WEB-INF/classes/de
+pubby-*.zip
+pubby.war
+logs/*log

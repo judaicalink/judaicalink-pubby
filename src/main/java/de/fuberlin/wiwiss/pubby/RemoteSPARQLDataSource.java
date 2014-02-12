@@ -1,13 +1,13 @@
 package de.fuberlin.wiwiss.pubby;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.logging.Logger;
-
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
 /**
  * A data source backed by a SPARQL endpoint accessed through
@@ -75,7 +75,7 @@ public class RemoteSPARQLDataSource implements DataSource {
 		log.fine("Executing query: " + query);
         previousDescribeQuery = query;
 		QueryEngineHTTP endpoint = new QueryEngineHTTP(endpointURL, query);
-		if (defaultGraphName != null) {
+        if (defaultGraphName != null) {
 			endpoint.setDefaultGraphURIs(Collections.singletonList(defaultGraphName));
 		}
         if (query.toLowerCase().trim().startsWith("describe")) {

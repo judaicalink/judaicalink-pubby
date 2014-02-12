@@ -40,10 +40,8 @@
 @prefix wgs84: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
 @prefix xalan: <http://xml.apache.org/xalan> .
 @prefix tei2edm: <http://sbb.spk-berlin.de/dm2e/tei2edm> .
-@prefix dm2e11: <http://onto.dm2e.eu/schemas/dm2e/1.1/> .
-@prefix dm2e: <http://onto.dm2e.eu/schemas/dm2e/> .
+@prefix dm2e: <http://data.dm2e.eu/schemas/dm2e/0.1/> .
 @prefix dct: <http://purl.org/dc/terms/> .
-@prefix bibo: <http://purl.org/ontology/bibo/> .
 
 
 # Server configuration section
@@ -67,14 +65,13 @@
     conf:indexResource <http://data.dm2e.eu/data/list>;
     conf:labelProperty rdfs:label, dc:title, dc:identifier;
     conf:imageProperty <http://onto.dm2e.eu/schemas/dm2e/1.1/hasAnnotatableVersionAt>;
-    conf:showLabels "false";
+    conf:showLabels "true";
     conf:loadVocabularyFromURL
         <https://dm2e.hu-berlin.de/onto/neologism/schemas/dm2e/1.0.rdf>,
         <http://www.openarchives.org/ore/1.0/terms>,
         <http://dublincore.org/2012/06/14/dcelements.rdf>;
 #    conf:loadVocabularyFromFile
 #        "";
-    conf:defaultEndpoint <http://localhost:9997/dm2e-direct/sparql>;
 
 
 
@@ -82,7 +79,7 @@
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
-        conf:sparqlEndpoint "default";
+        conf:sparqlEndpoint <http://data.dm2e.eu:9997/dm2e-direct/sparql>;
         # Default graph name to query (not necessary for most endpoints)
         # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
         # Common URI prefix of all resource URIs in the SPARQL dataset
@@ -132,7 +129,7 @@
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
-        conf:sparqlEndpoint "default";
+        conf:sparqlEndpoint <http://data.dm2e.eu:9997/dm2e-direct/sparql>;
         # Default graph name to query (not necessary for most endpoints)
         # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
         # Common URI prefix of all resource URIs in the SPARQL dataset
@@ -191,7 +188,7 @@
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
-        conf:sparqlEndpoint "default";
+        conf:sparqlEndpoint <http://data.dm2e.eu:9997/dm2e-direct/sparql>;
         # Default graph name to query (not necessary for most endpoints)
         # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
         # Common URI prefix of all resource URIs in the SPARQL dataset
@@ -262,7 +259,7 @@
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
-        conf:sparqlEndpoint "default";
+        conf:sparqlEndpoint <http://data.dm2e.eu:9997/dm2e-direct/sparql>;
         # Default graph name to query (not necessary for most endpoints)
         # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
         # Common URI prefix of all resource URIs in the SPARQL dataset
@@ -325,7 +322,7 @@
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
-        conf:sparqlEndpoint "default";
+        conf:sparqlEndpoint <http://data.dm2e.eu:9997/dm2e-direct/sparql>;
         # Default graph name to query (not necessary for most endpoints)
         # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
         # Common URI prefix of all resource URIs in the SPARQL dataset
@@ -393,7 +390,7 @@
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
-        conf:sparqlEndpoint "default";
+        conf:sparqlEndpoint <http://data.dm2e.eu:9997/dm2e-direct/sparql>;
         # Default graph name to query (not necessary for most endpoints)
         # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
         # Common URI prefix of all resource URIs in the SPARQL dataset
@@ -458,7 +455,7 @@
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
-        conf:sparqlEndpoint "default";
+        conf:sparqlEndpoint <http://data.dm2e.eu:9997/dm2e-direct/sparql>;
         # Default graph name to query (not necessary for most endpoints)
         # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
         # Common URI prefix of all resource URIs in the SPARQL dataset

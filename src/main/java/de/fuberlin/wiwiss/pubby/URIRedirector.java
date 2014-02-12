@@ -9,4 +9,6 @@ package de.fuberlin.wiwiss.pubby;
 public interface URIRedirector {
     public String getPageURL(String uri);
     public String getDataURL(String uri);
+    public void setConfiguration(Configuration config);
+    public void setDataset(Dataset dataset);
 }

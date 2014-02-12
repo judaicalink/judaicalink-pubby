@@ -1,5 +1,12 @@
 #parse("header.vm")
 
+#if ($sparql_query)
+                      <!-- SPARQL Query:
+                      $sparql_query
+                      -->
+                #end
+
+
 <div id="wrap">
     <div id="top"></div>
     <div id="content">
@@ -14,7 +21,7 @@
         </div>
 
         <div class="breadcrumbs">
-            URI of this Description: <a href="$uri">$uri</a>
+            URI of this <a href="http://www.openarchives.org/ore/1.0/primer#Nutshell">Resource Map</a>: <a href="$uri">$uri</a>
         </div>
         #foreach ($resource in $resources)
         <div class="resource">
@@ -49,6 +56,7 @@
         #if ($sparql_endpoint)
               This page shows information obtained from the SPARQL endpoint at <a class="sparql-uri" href="$sparql_endpoint">$sparql_endpoint</a>.<br />
         #end
+
         #if ($rdf_link)
               <img src="${server_base}static/rdf-icon.gif" />
               <a href="$rdf_link?output=ttl">As Turtle</a> |

@@ -1,29 +1,21 @@
 package de.fuberlin.wiwiss.pubby;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
-
-import javax.servlet.ServletContext;
-
-import com.hp.hpl.jena.rdf.model.AnonId;
-import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.util.FileManager;
 import com.hp.hpl.jena.util.FileUtils;
 import com.hp.hpl.jena.vocabulary.XSD;
 
 import de.fuberlin.wiwiss.pubby.vocab.CONF;
 import de.fuberlin.wiwiss.pubby.vocab.META;
+
+import javax.servlet.ServletContext;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  * The server's configuration.
@@ -36,7 +28,7 @@ import de.fuberlin.wiwiss.pubby.vocab.META;
  */
 public class Dataset {
 	private final Model model;
-	private final Resource config;
+	private final Resource dsConfig;
 	private final DataSource dataSource;
 	private final Pattern datasetURIPattern;
 	private final char[] fixUnescapeCharacters;
@@ -47,20 +39,24 @@ public class Dataset {
 	private Resource currentDocRepr;
     private final List sparqlMappings;
     private URIRedirector redirector;
+    private String endpoint;
+    private String defaultGraph;
+    private Configuration config;
 
     private Logger log = Logger.getLogger(getClass().getName());
 	
-	public Dataset(Resource config) {
-		model = config.getModel();
-		this.config = config;
-		if (config.hasProperty(CONF.datasetURIPattern)) {
+	public Dataset(Configuration config, Resource dsConfig) {
+        model = dsConfig.getModel();
+		this.dsConfig = dsConfig;
+        this.config = config;
+		if (dsConfig.hasProperty(CONF.datasetURIPattern)) {
 			datasetURIPattern = Pattern.compile(
-					config.getProperty(CONF.datasetURIPattern).getString());
+					dsConfig.getProperty(CONF.datasetURIPattern).getString());
 		} else {
 			datasetURIPattern = Pattern.compile(".*");
 		}
-		if (config.hasProperty(CONF.fixUnescapedCharacters)) {
-			String chars = config.getProperty(CONF.fixUnescapedCharacters).getString();
+		if (dsConfig.hasProperty(CONF.fixUnescapedCharacters)) {
+			String chars = dsConfig.getProperty(CONF.fixUnescapedCharacters).getString();
 			fixUnescapeCharacters = new char[chars.length()];
 			for (int i = 0; i < chars.length(); i++) {
 				fixUnescapeCharacters[i] = chars.charAt(i);
@@ -68,25 +64,36 @@ public class Dataset {
 		} else {
 			fixUnescapeCharacters = new char[0];
 		}
-		if (config.hasProperty(CONF.rdfDocumentMetadata)) {
-			rdfDocumentMetadataTemplate = config.getProperty(CONF.rdfDocumentMetadata).getResource();
+		if (dsConfig.hasProperty(CONF.rdfDocumentMetadata)) {
+			rdfDocumentMetadataTemplate = dsConfig.getProperty(CONF.rdfDocumentMetadata).getResource();
 		} else {
 			rdfDocumentMetadataTemplate = null;
 		}
-		if (config.hasProperty(CONF.metadataTemplate)) {
-			metadataTemplate = config.getProperty(CONF.metadataTemplate).getString();
+		if (dsConfig.hasProperty(CONF.metadataTemplate)) {
+			metadataTemplate = dsConfig.getProperty(CONF.metadataTemplate).getString();
 		} else {
 			metadataTemplate = null;
 		}
-		if (config.hasProperty(CONF.sparqlEndpoint)) {
-			String endpointURL = config.getProperty(CONF.sparqlEndpoint).getResource().getURI();
-			String defaultGraph = config.hasProperty(CONF.sparqlDefaultGraph)
-					? config.getProperty(CONF.sparqlDefaultGraph).getResource().getURI()
+		if (dsConfig.hasProperty(CONF.sparqlEndpoint)) {
+			endpoint = null;
+            if (dsConfig.getProperty(CONF.sparqlEndpoint).getObject().isResource()) {
+                endpoint = dsConfig.getProperty(CONF.sparqlEndpoint).getResource().getURI();
+            } else {
+                endpoint = config.getDefaultEndpoint();
+            }
+            if (endpoint==null) {
+                log.severe("No endpoint configured for dataset: " + getDatasetBase());
+                throw new RuntimeException("No default endpoint and no dataset endpoint has been defined!");
+            } else {
+                log.fine("Endpoint: " + endpoint);
+            }
+            defaultGraph = dsConfig.hasProperty(CONF.sparqlDefaultGraph)
+					? dsConfig.getProperty(CONF.sparqlDefaultGraph).getResource().getURI()
 					: null;
-			dataSource = new RemoteSPARQLDataSource(endpointURL, defaultGraph, this);
+			dataSource = new RemoteSPARQLDataSource(endpoint, defaultGraph, this);
 		} else {
 			Model data = ModelFactory.createDefaultModel();
-			StmtIterator it = config.listProperties(CONF.loadRDF);
+			StmtIterator it = dsConfig.listProperties(CONF.loadRDF);
 			while (it.hasNext()) {
 				Statement stmt = it.nextStatement();
 				FileManager.get().readModel(data, stmt.getResource().getURI());
@@ -94,14 +101,16 @@ public class Dataset {
 			dataSource = new ModelDataSource(data);
 		}
         sparqlMappings = new ArrayList();
-        StmtIterator it = model.listStatements(config, CONF.useSparqlMapping, (RDFNode) null);
+        StmtIterator it = model.listStatements(dsConfig, CONF.useSparqlMapping, (RDFNode) null);
         while (it.hasNext()) {
             sparqlMappings.add(new SparqlMapping(it.nextStatement().getResource()));
         }
         redirector = null;
-        if (config.hasProperty(CONF.customRedirect)) {
+        if (dsConfig.hasProperty(CONF.customRedirect)) {
             try {
-                redirector = (URIRedirector) Class.forName(config.getProperty(CONF.customRedirect).getString()).newInstance();
+                redirector = (URIRedirector) Class.forName(dsConfig.getProperty(CONF.customRedirect).getString()).newInstance();
+                redirector.setConfiguration(config);
+                redirector.setDataset(this);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             } catch (InstantiationException e) {
@@ -154,39 +163,51 @@ public class Dataset {
 				configuration,
 				this);
 	}
-	
-	public String getDatasetBase() {
-		return config.getProperty(CONF.datasetBase).getResource().getURI();
-	}
-	
-	public boolean getAddSameAsStatements() {
+
+    public String getDatasetBase() {
+        return dsConfig.getProperty(CONF.datasetBase).getResource().getURI();
+    }
+    public int getPriority() {
+        return getIntConfigValue(CONF.priority, 0);
+    }
+
+
+    public boolean getAddSameAsStatements() {
 		return getBooleanConfigValue(CONF.addSameAsStatements, false);
 	}
 	
 	public DataSource getDataSource() {
 		return dataSource;
 	}
+
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public String getDefaultGraph() {
+        return defaultGraph;
+    }
 	
 	public boolean redirectRDFRequestsToEndpoint() {
 		return getBooleanConfigValue(CONF.redirectRDFRequestsToEndpoint, false);
 	}
 
     public String getWebResourcePrefix() {
-        if (config.hasProperty(CONF.webResourcePrefix)) {
-            return config.getProperty(CONF.webResourcePrefix).getString();
+        if (dsConfig.hasProperty(CONF.webResourcePrefix)) {
+            return dsConfig.getProperty(CONF.webResourcePrefix).getString();
         }
         return "";
     }
     public String getWebDataPrefix() {
-        if (config.hasProperty(CONF.webDataPrefix)) {
-            return config.getProperty(CONF.webDataPrefix).getString();
+        if (dsConfig.hasProperty(CONF.webDataPrefix)) {
+            return dsConfig.getProperty(CONF.webDataPrefix).getString();
         }
         return "data/";
     }
 
     public String getWebPagePrefix() {
-        if (config.hasProperty(CONF.webPagePrefix)) {
-            return config.getProperty(CONF.webPagePrefix).getString();
+        if (dsConfig.hasProperty(CONF.webPagePrefix)) {
+            return dsConfig.getProperty(CONF.webPagePrefix).getString();
         }
         return "page/";
     }
@@ -246,10 +267,12 @@ public class Dataset {
 			
 			try {
 				if (subj.toString().contains(metadataPlaceholderURIPrefix)){
-					subj = (Resource) parsePlaceholder(subj, describedResource, context);
-					if (subj == null) {
+					final RDFNode parsedPlaceHolder = parsePlaceholder(subj, describedResource, context);
+					if (subj == null || ! parsedPlaceHolder.isURIResource()) {
 						// create a unique blank node with a fixed id.
 						subj = model.createResource(new AnonId(String.valueOf(stmt.getSubject().hashCode())));
+					} else {
+						subj = parsedPlaceHolder.asResource();
 					}
 				}
 				
@@ -334,11 +357,11 @@ public class Dataset {
 		if (phPackage.equals("config")) {
 			// look for requested property in the dataset config
 			Property p  = model.createProperty(CONF.NS + phName);
-			if (config.hasProperty(p))
-				return config.getProperty(p).getObject();
+			if (dsConfig.hasProperty(p))
+				return dsConfig.getProperty(p).getObject();
 			
 			// find pointer to the global configuration set...
-			StmtIterator it = config.getModel().listStatements(null, CONF.dataset, config);
+			StmtIterator it = dsConfig.getModel().listStatements(null, CONF.dataset, dsConfig);
 			Statement ptrStmt = it.nextStatement();
 			if (ptrStmt == null) return null;
 			
@@ -352,11 +375,11 @@ public class Dataset {
 		if (phPackage.equals("metadata")) {
 			// look for requested property in the dataset config
 			Property p  = model.createProperty(META.NS + phName);
-			if (config.hasProperty(p))
-				return config.getProperty(p).getObject();
+			if (dsConfig.hasProperty(p))
+				return dsConfig.getProperty(p).getObject();
 			
 			// find pointer to the global configuration set...
-			StmtIterator it = config.getModel().listStatements(null, CONF.dataset, config);
+			StmtIterator it = dsConfig.getModel().listStatements(null, CONF.dataset, dsConfig);
 			Statement ptrStmt = it.nextStatement();
 			if (ptrStmt == null) return null;
 			
@@ -370,15 +393,32 @@ public class Dataset {
 	}
 	
 	private boolean getBooleanConfigValue(Property property, boolean defaultValue) {
-		if (!config.hasProperty(property)) {
+		if (!dsConfig.hasProperty(property)) {
 			return defaultValue;
 		}
-		Literal value = config.getProperty(property).getLiteral();
+		Literal value = dsConfig.getProperty(property).getLiteral();
 		if (XSD.xboolean.equals(value.getDatatype())) {
 			return value.getBoolean();
 		}
 		return "true".equals(value.getString());
 	}
+
+    private int getIntConfigValue(Property property, int defaultValue) {
+        if (!dsConfig.hasProperty(property)) {
+            return defaultValue;
+        }
+        Literal value = dsConfig.getProperty(property).getLiteral();
+        if (XSD.integer.equals(value.getDatatype())) {
+            return value.getInt();
+        }
+        try {
+            int result = Integer.parseInt(value.getString());
+            return result;
+        } catch (NumberFormatException nfe) {
+            log.warning("Could not parse integer value: " + value + " of property: " + property.getLocalName());
+            return defaultValue;
+        }
+    }
 
 	private String fixUnescapedCharacters(String uri) {
 		if (fixUnescapeCharacters.length == 0) {
@@ -454,6 +494,17 @@ public class Dataset {
         }
         return uri;
     }
+    public String getWebDataResource(String uri) {
+        log.fine("Detecting web data resource for URI: " + uri);
+        Iterator it = getSparqlMappings().iterator();
+        while (it.hasNext()) {
+            SparqlMapping sm = (SparqlMapping) it.next();
+            if (sm.isMappedURI(uri)) {
+                return sm.getWebDataResource(uri);
+            }
+        }
+        return uri;
+    }
 
     public class SparqlMapping {
         private Pattern uriPattern;
@@ -463,13 +514,19 @@ public class Dataset {
         public String getPrimaryResource(String uri) {
             return uriPattern.matcher(uri).replaceAll(primaryResource);
         }
+        public String getWebDataResource(String uri) {
+            return uriPattern.matcher(uri).replaceAll(webDataResource);
+        }
 
-        private String primaryResource;
+        private String primaryResource, webDataResource;
 
         public SparqlMapping(Resource mapping) {
             this.sparqlQuery = mapping.getProperty(CONF.sparqlQuery).getString();
             this.uriPattern = Pattern.compile(mapping.getProperty(CONF.uriPattern).getString());
             this.primaryResource = mapping.getProperty(CONF.primaryResource).getString();
+            if (mapping.getProperty(CONF.webDataResource)!=null) {
+                this.webDataResource = mapping.getProperty(CONF.webDataResource).getString();
+            }
             StmtIterator it = mapping.listProperties(CONF.publishResources);
             while (it.hasNext()) {
                 Statement stmt = it.nextStatement();

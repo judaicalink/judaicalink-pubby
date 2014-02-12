@@ -25,10 +25,12 @@ public class CONF {
     public static final Property dataset = m.createProperty(NS + "dataset");
     public static final Property showLabels = m.createProperty(NS + "showLabels");
     public static final Property loadVocabularyFromURL = m.createProperty(NS + "loadVocabularyFromURL");
+    public static final Property defaultEndpoint = m.createProperty(NS + "defaultEndpoint");
 
 
     public static final Property datasetBase = m.createProperty(NS + "datasetBase");
-	public static final Property datasetURIPattern = m.createProperty(NS + "datasetURIPattern");
+    public static final Property priority = m.createProperty(NS + "priority");
+    public static final Property datasetURIPattern = m.createProperty(NS + "datasetURIPattern");
     public static final Property webResourcePrefix = m.createProperty(NS + "webResourcePrefix");
     public static final Property webDataPrefix = m.createProperty(NS + "webDataPrefix");
     public static final Property webPagePrefix = m.createProperty(NS + "webPagePrefix");
@@ -45,6 +47,7 @@ public class CONF {
     public static final Property sparqlQuery = m.createProperty(NS + "sparqlQuery");
     public static final Property publishResources = m.createProperty(NS + "publishResources");
     public static final Property primaryResource = m.createProperty(NS + "primaryResource");
+    public static final Property webDataResource = m.createProperty(NS + "webDataResource");
     public static final Property customRedirect = m.createProperty(NS + "customRedirect");
 
 }
