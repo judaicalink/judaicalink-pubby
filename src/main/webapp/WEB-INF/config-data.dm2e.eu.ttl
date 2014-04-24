@@ -42,8 +42,15 @@
 @prefix tei2edm: <http://sbb.spk-berlin.de/dm2e/tei2edm> .
 @prefix dm2e11: <http://onto.dm2e.eu/schemas/dm2e/1.1/> .
 @prefix dm2e: <http://onto.dm2e.eu/schemas/dm2e/> .
+@prefix omnom: <http://onto.dm2e.eu/omnom/> .
+@prefix omnom_types: <http://onto.dm2e.eu/omnom-types/> .
 @prefix dct: <http://purl.org/dc/terms/> .
 @prefix bibo: <http://purl.org/ontology/bibo/> .
+@prefix pro: <http://purl.org/spar/pro/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dm2e_unofficial: <http://onto.dm2e.eu/UNOFFICIAL/> .
+@prefix rdaGr2: <http://rdvocab.info/ElementsGr2/> .
+@prefix crm: <http://www.cidoc-crm.org/cidoc-crm/> .
 
 
 # Server configuration section
@@ -54,7 +61,7 @@
     conf:projectHomepage <http://dm2e.eu>;
     # The Pubby root, where the webapp is running inside the servlet container.
     # Recommended. If not available, automatic detection is used.
-    # conf:webBase <http://lelystad.informatik.uni-mannheim.de:8080/pubby/>;
+    conf:webBase <http://data.dm2e.eu/data/>;
     # URL of an RDF file whose prefix mapping is to be used by the
     # server; defaults to <>, which is *this* file.
     # conf:usePrefixesFrom <http://lelystad.informatik.uni-mannheim.de:8080/prefixes.n3>;
@@ -66,7 +73,7 @@
     # be shown.
     conf:indexResource <http://data.dm2e.eu/data/list>;
     conf:labelProperty rdfs:label, dc:title, dc:identifier;
-    conf:imageProperty <http://onto.dm2e.eu/schemas/dm2e/1.1/hasAnnotatableVersionAt>;
+    conf:imageProperty <http://www.europeana.eu/schemas/edm/object>;
     conf:showLabels "false";
     conf:loadVocabularyFromURL
         <https://dm2e.hu-berlin.de/onto/neologism/schemas/dm2e/1.0.rdf>,
@@ -102,13 +109,17 @@
 
         conf:useSparqlMapping [
                     conf:uriPattern "http://data.dm2e.eu/data/list";
-                    conf:sparqlQuery '''CONSTRUCT {
-                        <http://data.dm2e.eu/data/list> <http://onto.dm2e.eu/UNOFFICIAL/hasCollection> ?s .
+                    conf:sparqlQuery '''
+                    CONSTRUCT {
+                         <http://data.dm2e.eu/data/list> a <http://onto.dm2e.eu/schemas/dm2e/AbstractDatasetSet> .
+                        <http://data.dm2e.eu/data/list> <http://onto.dm2e.eu/schemas/dm2e/hasAbstractDataset> ?s .
                     } WHERE {
                         graph ?g {
                             ?x <http://www.w3.org/ns/prov#specializationOf> ?s .
+                            FILTER (?s != <http://data.dm2e.eu/data/dataset/bbaw/dta>)
                         }
-                    } ''';
+                    }
+                    ''';
                     conf:publishResources
                         "http://data.dm2e.eu/data/list";
                     conf:primaryResource
@@ -154,13 +165,16 @@
         conf:useSparqlMapping [
                     conf:uriPattern "http://data.dm2e.eu/data/dataset/([a-z-_]*/[a-z-_]*)$";
                     conf:sparqlQuery '''CONSTRUCT {
-			?s a <http://example.org/collection> .
-                        ?s <http://onto.dm2e.eu/UNOFFICIAL/hasVersion> ?x .
-                    } WHERE {
-                        graph ?g {
-                            ?x <http://www.w3.org/ns/prov#specializationOf> ?s .
-                        }
-                    } ''';
+                           ?collection a <http://onto.dm2e.eu/schemas/dm2e/AbstractDataset> .
+                           ?collection <http://onto.dm2e.eu/schemas/dm2e/hasVersion> ?versionedDataset .
+                         } WHERE {
+                           GRAPH ?versionedDataset {
+                             ?versionedDataset <http://www.w3.org/ns/prov#specializationOf> ?collection .
+                             FILTER EXISTS {
+                               ?cho a <http://www.europeana.eu/schemas/edm/ProvidedCHO> . 
+                             }
+                           }
+                         } ''';
                     conf:publishResources
                         "http://data.dm2e.eu/data/dataset/$1";
                     conf:primaryResource
@@ -185,6 +199,91 @@
 #        meta:endpointOperator <URI of the service provider who operates the SPARQL endpoint>;
 #        meta:endpointDataset <URI of the linked dataset that is exposed via the SPARQL endpoint>;
     ];
+
+# List of versioned datasets for a Linkset!!
+#
+    conf:dataset [
+        # SPARQL endpoint URL of the dataset
+        conf:sparqlEndpoint "default";
+        # Default graph name to query (not necessary for most endpoints)
+        # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
+        # Common URI prefix of all resource URIs in the SPARQL dataset
+        conf:datasetBase <http://data.dm2e.eu/data/linkset/>;
+        conf:datasetURIPattern "([a-z-_]*/[a-z-_]*)$";
+        conf:priority "1";
+        conf:addSameAsStatements "false";
+        # Will be appended to the conf:webBase to form the public
+        # resource URIs; if not present, defaults to ""
+        conf:webResourcePrefix "linkset/";
+        # conf:customRedirect "de.fuberlin.wiwiss.pubby.dm2e.ResourceRedirector";
+        # Will be appended to the conf:webBase to form the public
+        # data URIs; if not present, defaults to "data/"
+        conf:webDataPrefix "rdf/linkset/";
+        # Will be appended to the conf:webBase to form the public
+        # page URIs; if not present, defaults to "page/"
+        conf:webPagePrefix "html/linkset/";
+
+        conf:useSparqlMapping [
+                    conf:uriPattern "http://data.dm2e.eu/data/linkset/([a-z-_]*/[a-z-_]*)$";
+                    conf:sparqlQuery '''CONSTRUCT {
+                           ?collection a <http://onto.dm2e.eu/schemas/dm2e/AbstractLinkset> .
+                           ?collection <http://onto.dm2e.eu/schemas/dm2e/hasVersion> ?versionedDataset .
+                         } WHERE {
+                           GRAPH ?versionedDataset {
+                             ?versionedDataset <http://www.w3.org/ns/prov#specializationOf> ?collection .
+                           }
+                         } ''';
+                    conf:publishResources
+                        "http://data.dm2e.eu/data/linkset/$1";
+                    conf:primaryResource
+                        "http://data.dm2e.eu/data/linkset/$1";
+                ];
+
+        # Fixes an issue with the server running behind an Apache proxy;
+        # can be ignored otherwise
+        conf:fixUnescapedCharacters "(),'!$&*+;=@";
+
+        # include metadata
+        conf:metadataTemplate "metadata.ttl";
+
+        # configure your metadata here
+        # Use properties with the meta: prefix where the property name
+        # corresponds to the placeholder URIs in metadata.ttl that begin
+        # with about:metadata:metadata:
+        # Examples for such properties are:
+#        meta:pubbyUser <URI of the data publisher who uses this Pubby>;
+#        meta:pubbyOperator <URI of the service provider who operates this Pubby>;
+#        meta:endpointUser <URI of the data publisher who uses the SPARQL endpoint queried by this Pubby>;
+#        meta:endpointOperator <URI of the service provider who operates the SPARQL endpoint>;
+#        meta:endpointDataset <URI of the linked dataset that is exposed via the SPARQL endpoint>;
+    ];
+
+# Latest Redirect
+#
+    conf:dataset [
+        # SPARQL endpoint URL of the dataset
+        conf:sparqlEndpoint "default";
+        # Default graph name to query (not necessary for most endpoints)
+        # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
+        # Common URI prefix of all resource URIs in the SPARQL dataset
+        conf:datasetBase <http://data.dm2e.eu/data/dataset/>;
+        conf:datasetURIPattern "([a-z-_]*/[a-z-_]*/latest)$";
+        conf:priority "1";
+        conf:addSameAsStatements "false";
+        # Will be appended to the conf:webBase to form the public
+        # resource URIs; if not present, defaults to ""
+        conf:webResourcePrefix "dataset/";
+        conf:customRedirect "de.fuberlin.wiwiss.pubby.dm2e.LatestRedirector";
+        # Will be appended to the conf:webBase to form the public
+        # data URIs; if not present, defaults to "data/"
+        # conf:webDataPrefix "rdf/dataset/";
+        # Will be appended to the conf:webBase to form the public
+        # page URIs; if not present, defaults to "page/"
+        # conf:webPagePrefix "html/dataset/";
+
+    ];
+
+
 
 
 # List of toplevel CHOs in a versioned dataset
@@ -213,25 +312,16 @@
         conf:useSparqlMapping [
                     conf:uriPattern "http://data.dm2e.eu/data/dataset/([a-z-_]*/[a-z-_]*/[0-9]*)$";
                     conf:sparqlQuery '''CONSTRUCT {
-			?s a <http://example.org/versioned> .
-                        ?s ?p ?o .
-                        ?s <http://onto.dm2e.eu/UNOFFICIAL/containsCHO> ?x .
-                    } WHERE {
-                        graph ?g {
-                            ?s ?p ?o .
-			    OPTIONAL {
-                              ?x a <http://www.europeana.eu/schemas/edm/ProvidedCHO> . 
-                              FILTER NOT EXISTS {
-                                 ?x <http://purl.org/dc/terms/isPartOf> ?y .
-                              }
-                            }.
-                        }
-                        FILTER (
-                            ?g = <http://data.dm2e.eu/data/dataset/$1> && (
-                                ?s = <http://data.dm2e.eu/data/dataset/$1> ||  ?o = <http://data.dm2e.eu/data/dataset/$1>
-                            )
-                        )
-                    } ''';
+                           <http://data.dm2e.eu/data/dataset/$1> a <http://onto.dm2e.eu/schemas/dm2e/VersionedDataset> .
+                           <http://data.dm2e.eu/data/dataset/$1> <http://onto.dm2e.eu/schemas/dm2e/containsCHO> ?cho .
+                           <http://data.dm2e.eu/data/dataset/$1> ?p ?o .
+                         } WHERE {
+                           GRAPH <http://data.dm2e.eu/data/dataset/$1> {
+                               <http://data.dm2e.eu/data/dataset/$1> ?p ?o .
+                               ?agg <http://onto.dm2e.eu/schemas/dm2e/displayLevel> "true"^^<http://www.w3.org/2001/XMLSchema#boolean> .
+                               ?agg <http://www.europeana.eu/schemas/edm/aggregatedCHO> ?cho .
+                           }.
+                         } ''';
                     conf:publishResources
                         "http://data.dm2e.eu/data/dataset/$1";
                     conf:primaryResource
@@ -347,20 +437,92 @@
         conf:useSparqlMapping [
                     conf:uriPattern "http://data.dm2e.eu/data/rdf/resourcemap/([a-z-_]*)/([a-z-_]*)/(.*)/([0-9]*)";
                     conf:sparqlQuery '''CONSTRUCT {
-                        ?s ?p ?o .
-                        ?av <http://purl.org/dc/elements/1.1/format> ?format .
-			?s a <http://example.org/resourcemap> .
+                        <http://data.dm2e.eu/data/item/$1/$2/$3> ?choPredicate ?choObject .
+                        ?reveserChoSubject ?reverseChoPredicate <http://data.dm2e.eu/data/item/$1/$2/$3> .
+                        # ?reverseChoSubject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?reverseChoSubjectType .
+
+                        <http://data.dm2e.eu/data/aggregation/$1/$2/$3> ?aggPredicate ?aggObject .
+                        ?reverseAggSubject ?reverseAggPredicate <http://data.dm2e.eu/data/aggregation/$1/$2/$3> .
+                        # ?reverseAggSubject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?reverseAggSubjectType .
+
+                        ?webResourceVersionSubject ?webResourceVersionPredicate ?webResourceVersionObject .
+                        ?contextualSubject ?contextualPredicate ?contextualObject .
+                        ?containedCho <http://purl.org/dc/terms/isPartOf> <http://data.dm2e.eu/data/item/$1/$2/$3> .
+                        ?containedCho <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.europeana.eu/schemas/edm/ProvidedCHO> .
+
+                        # Backlinks to Dataset
+                        <http://data.dm2e.eu/data/item/$1/$2/$3> <http://rdfs.org/ns/void#inDataset> <http://data.dm2e.eu/data/dataset/$1/$2/$4> .
+                        <http://data.dm2e.eu/data/aggregation/$1/$2/$3> <http://rdfs.org/ns/void#inDataset> <http://data.dm2e.eu/data/dataset/$1/$2/$4> .
                     } WHERE {
-                        graph <http://data.dm2e.eu/data/dataset/$1/$2/$4> {
-                            ?s ?p ?o .
-                            OPTIONAL {
-                                ?s <http://onto.dm2e.eu/schemas/dm2e/1.1/hasAnnotatableVersionAt> ?av. ?av <http://purl.org/dc/elements/1.1/format> ?format
+                        GRAPH <http://data.dm2e.eu/data/dataset/$1/$2/$4> {
+                            { <http://data.dm2e.eu/data/item/$1/$2/$3> ?choPredicate ?choObject }
+                            UNION
+                            {
+                                ?reveserChoSubject ?reverseChoPredicate <http://data.dm2e.eu/data/item/$1/$2/$3> .
+                                # ?reverseChoSubject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?reverseChoSubjectType .
+                            }
+                            UNION
+                            { <http://data.dm2e.eu/data/aggregation/$1/$2/$3> ?aggPredicate ?aggObject }
+                            UNION
+                            {
+                                ?reverseAggSubject ?reverseAggPredicate <http://data.dm2e.eu/data/aggregation/$1/$2/$3> .
+                                # ?reverseAggSubject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?reverseAggSubjectType .
+                            }
+                            UNION 
+                            { ?containedCho <http://purl.org/dc/terms/isPartOf> <http://data.dm2e.eu/data/item/$1/$2/$3> .  }
+                            UNION
+                            {
+                                <http://data.dm2e.eu/data/aggregation/$1/$2/$3> 
+                                        <http://onto.dm2e.eu/schemas/dm2e/hasAnnotatableVersionAt>
+                                    |   <http://www.europeana.eu/schemas/edm/object>
+                                    ?webResourceVersionSubject.
+                                ?webResourceVersionSubject ?webResourceVersionPredicate ?webResourceVersionObject.
+                            }
+                            UNION {
+                                <http://data.dm2e.eu/data/item/$1/$2/$3> 
+                                    # Misc
+                                        <http://purl.org/dc/elements/1.1/subject>
+                                    |   <http://www.europeana.eu/schemas/edm/hasMet>
+
+                                    # Agents (creator)
+                                    |   <http://purl.org/spar/pro/author> 
+                                    |   <http://onto.dm2e.eu/schemas/dm2e/writer>
+                                    |   <http://purl.org/dc/elements/1.1/creator>
+                                    # Agents (contributor)
+                                    |   <http://purl.org/dc/elements/1.1/contributor>
+                                    |   <http://purl.org/dc/elements/1.1/publisher>
+                                    |   <http://purl.org/ontology/bibo/editor>
+                                    |   <http://purl.org/spar/pro/printer>
+                                    |   <http://purl.org/spar/pro/translator>
+                                    |   <http://purl.org/spar/pro/illustrator>
+                                    # Agents (other)
+                                    |   <http://www.europeana.eu/schemas/edm/wasPresentAt>
+                                    |   <http://onto.dm2e.eu/schemas/dm2e/mentioned>
+                                    |   <http://onto.dm2e.eu/schemas/dm2e/misattributed>
+                                    |   <http://onto.dm2e.eu/schemas/dm2e/owner>
+                                    |   <http://onto.dm2e.eu/schemas/dm2e/previousOwner>
+                                    |   <http://onto.dm2e.eu/schemas/dm2e/patron>
+                                    |   <http://onto.dm2e.eu/schemas/dm2e/principal>
+                                    |   <http://onto.dm2e.eu/schemas/dm2e/sponsor>
+                                    |   <http://onto.dm2e.eu/schemas/dm2e/wasStudiedBy>
+                                    |   <http://onto.dm2e.eu/schemas/dm2e/wasTaughtBy>
+                                    |   <http://purl.org/dc/terms/rightsHolder>
+                                    |   <http://purl.org/ontology/bibo/recipient>
+
+                                    # TimeSpan
+                                    |   <http://purl.org/dc/terms/created>
+                                    |   <http://purl.org/dc/terms/issued>
+                                    |   <http://purl.org/dc/terms/temporal>
+
+                                    # Places
+                                    |   <http://onto.dm2e.eu/schemas/dm2e/printedAt>
+                                    |   <http://onto.dm2e.eu/schemas/dm2e/publishedAt>
+                                    |   <http://onto.dm2e.eu/schemas/dm2e/writtenAt>
+                                    |   <http://www.europeana.eu/schemas/edm/currentLocation>
+                                    ?contextualSubject .
+                                ?contextualSubject ?contextualPredicate ?contextualObject .
                             }
                         }
-                        FILTER (
-                            ?s = <http://data.dm2e.eu/data/item/$1/$2/$3> ||  ?o = <http://data.dm2e.eu/data/item/$1/$2/$3>
-                         || ?s = <http://data.dm2e.eu/data/aggregation/$1/$2/$3> ||  ?o = <http://data.dm2e.eu/data/aggregation/$1/$2/$3>
-                       )
                     } ''';
                     conf:publishResources
                         "http://data.dm2e.eu/data/aggregation/$1/$2/$3", "http://data.dm2e.eu/data/item/$1/$2/$3";
@@ -415,19 +577,24 @@
                     conf:uriPattern "http://data.dm2e.eu/data/(.*)";
                     conf:sparqlQuery '''CONSTRUCT {
                              <http://data.dm2e.eu/data/$1> ?p1 ?o1.
-                             ?s2 ?p2 <http://data.dm2e.eu/data/$1> .
+                             ?cho ?choProp <http://data.dm2e.eu/data/$1> .
                     } WHERE {
                         GRAPH ?g {
-                            OPTIONAL { <http://data.dm2e.eu/data/$1> ?p1 ?o1 . }
-                            OPTIONAL {
-                                ?s2 ?p2 <http://data.dm2e.eu/data/$1> . 
-                                # kba Thu Jan 30 14:39:46 CET 2014
-                                # This must be faster for OAI so we skip non-top elements
-                                FILTER NOT EXISTS {
-                                    ?s2 <http://purl.org/dc/terms/isPartOf> ?y .
-                                }
-                            }
+                            <http://data.dm2e.eu/data/$1> ?p1 ?o1 .
+#                            OPTIONAL {
+#                                ?cho ?choProp <http://data.dm2e.eu/data/$1> .
+#                                ?agg <http://www.europeana.eu/schemas/edm/aggregatedCHO> ?cho .
+#                                ?agg <http://onto.dm2e.eu/schemas/dm2e/displayLevel> "true"^^<http://www.w3.org/2001/XMLSchema#boolean> .
+#                            }
                         }
+                            # OPTIONAL {
+                            #     ?s2 ?p2 <http://data.dm2e.eu/data/$1> . 
+                            #     # kba Thu Jan 30 14:39:46 CET 2014
+                            #     # This must be faster for OAI so we skip non-top elements
+                            #     FILTER NOT EXISTS {
+                            #         ?s2 <http://purl.org/dc/terms/isPartOf> ?y .
+                            #     }
+                            # }
                     } ''';
                     conf:publishResources
                         "http://data.dm2e.eu/data/$1";
@@ -454,7 +621,8 @@
 #        meta:endpointDataset <URI of the linked dataset that is exposed via the SPARQL endpoint>;
     ];
 
-# Omnom Data
+
+# All Links for a resource
 #
     conf:dataset [
         # SPARQL endpoint URL of the dataset
@@ -462,7 +630,78 @@
         # Default graph name to query (not necessary for most endpoints)
         # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
         # Common URI prefix of all resource URIs in the SPARQL dataset
-        conf:datasetBase <http://omnom.hu-berlin.de/api/>;
+        conf:datasetBase <http://data.dm2e.eu/data/>;
+        conf:datasetURIPattern "all-links/(.*)$";
+        conf:priority "3";
+        conf:addSameAsStatements "false";
+        # Will be appended to the conf:webBase to form the public
+        # resource URIs; if not present, defaults to ""
+        conf:webResourcePrefix "";
+        # conf:customRedirect "de.fuberlin.wiwiss.pubby.dm2e.ResourceRedirector";
+        # Will be appended to the conf:webBase to form the public
+        # data URIs; if not present, defaults to "data/"
+        conf:webDataPrefix "rdf/";
+        # Will be appended to the conf:webBase to form the public
+        # page URIs; if not present, defaults to "page/"
+        conf:webPagePrefix "html/";
+
+        conf:useSparqlMapping [
+                    conf:uriPattern "http://data.dm2e.eu/data/all-links/(.*)";
+                    conf:sparqlQuery '''CONSTRUCT {
+                             <http://data.dm2e.eu/data/$1> owl:sameAs ?o1.
+                    } WHERE {
+                        GRAPH ?g {
+                            <http://data.dm2e.eu/data/$1> owl:sameAs ?o1 .
+#                            OPTIONAL {
+#                                ?cho ?choProp <http://data.dm2e.eu/data/$1> .
+#                                ?agg <http://www.europeana.eu/schemas/edm/aggregatedCHO> ?cho .
+#                                ?agg <http://onto.dm2e.eu/schemas/dm2e/displayLevel> "true"^^<http://www.w3.org/2001/XMLSchema#boolean> .
+#                            }
+                        }
+                            # OPTIONAL {
+                            #     ?s2 ?p2 <http://data.dm2e.eu/data/$1> . 
+                            #     # kba Thu Jan 30 14:39:46 CET 2014
+                            #     # This must be faster for OAI so we skip non-top elements
+                            #     FILTER NOT EXISTS {
+                            #         ?s2 <http://purl.org/dc/terms/isPartOf> ?y .
+                            #     }
+                            # }
+                    } ''';
+                    conf:publishResources
+                        "http://data.dm2e.eu/data/$1";
+                    conf:primaryResource
+                        "http://data.dm2e.eu/data/$1";
+                ];
+
+        # Fixes an issue with the server running behind an Apache proxy;
+        # can be ignored otherwise
+        conf:fixUnescapedCharacters "(),'!$&*+;=@";
+
+        # include metadata
+        conf:metadataTemplate "metadata.ttl";
+
+        # configure your metadata here
+        # Use properties with the meta: prefix where the property name
+        # corresponds to the placeholder URIs in metadata.ttl that begin
+        # with about:metadata:metadata:
+        # Examples for such properties are:
+#        meta:pubbyUser <URI of the data publisher who uses this Pubby>;
+#        meta:pubbyOperator <URI of the service provider who operates this Pubby>;
+#        meta:endpointUser <URI of the data publisher who uses the SPARQL endpoint queried by this Pubby>;
+#        meta:endpointOperator <URI of the service provider who operates the SPARQL endpoint>;
+#        meta:endpointDataset <URI of the linked dataset that is exposed via the SPARQL endpoint>;
+    ];
+
+
+# Omnom Data
+#
+    conf:dataset [
+        # SPARQL endpoint URL of the dataset
+        conf:sparqlEndpoint <http://localhost:9999/dm2e-omnom/sparql>;
+        # Default graph name to query (not necessary for most endpoints)
+        # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
+        # Common URI prefix of all resource URIs in the SPARQL dataset
+        conf:datasetBase <http://omnom.dm2e.eu/api/>;
         conf:addSameAsStatements "true";
         # Will be appended to the conf:webBase to form the public
         # resource URIs; if not present, defaults to ""
@@ -476,21 +715,22 @@
         conf:webPagePrefix "html/omnom/";
 
         conf:useSparqlMapping [
-                            conf:uriPattern "http://omnom.hu-berlin.de/api/(.*)";
-                            conf:sparqlQuery '''CONSTRUCT {
-                                ?s ?p ?o .
-
-                            } WHERE {
-                                graph ?g { ?s ?p ?o . }
-                                FILTER (
-                                    ?s = <http://omnom.hu-berlin.de/api/$1> ||  ?o = <http://omnom.hu-berlin.de/api/$1>
-                                )
-                            } ''';
-                            conf:publishResources
-                                "http://omnom.hu-berlin.de/api/$1";
-                            conf:primaryResource
-                                "http://omnom.hu-berlin.de/api/$1";
-                        ];
+            conf:uriPattern "http://omnom.dm2e.eu/api/(.*)";
+            conf:sparqlQuery '''CONSTRUCT {
+                ?s ?p ?o .
+            } WHERE {
+                GRAPH ?g {
+                    ?s ?p ?o .
+                }
+                FILTER (
+                    ?s = <http://omnom.dm2e.eu/api/$1> ||  ?o = <http://omnom.dm2e.eu/api/$1>
+                )
+            } ''';
+            conf:publishResources
+                "http://omnom.dm2e.eu/api/$1";
+            conf:primaryResource
+                "http://omnom.dm2e.eu/api/$1";
+        ];
 
         # Fixes an issue with the server running behind an Apache proxy;
         # can be ignored otherwise
@@ -526,4 +766,6 @@
 #        conf:datasetURIPattern "(class|property)/.*";
 #        conf:fixUnescapedCharacters "(),'!$&*+;=@";
 #    ];
+
+# vim: set sw=2
     .
