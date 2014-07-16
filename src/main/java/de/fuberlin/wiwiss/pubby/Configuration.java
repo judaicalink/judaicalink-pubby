@@ -124,7 +124,7 @@ public class Configuration {
 			MappedResource resource = dataset.getMappedResourceFromRelativeWebURI(
 					relativeWebURI, isResourceURI, this);
 			if (resource != null) {
-				log.fine("   Potentially mapped to " + resource.getDatasetURI() + " (Dataset base: " + resource.getDataset().getDatasetBase() + ", Prio: " + dataset.getPriority() + ")");
+				log.fine("   Potentially mapped to " + resource.getDatasetURI() + " (URI pattern: " + resource.getDataset().getDatasetURIPattern() + ", Prio: " + dataset.getPriority() + ")");
                 if (bestMatch == null || bestMatch.getPriority() > dataset.getPriority()) {
                     bestMatch = dataset;
                 }
@@ -136,7 +136,7 @@ public class Configuration {
         } else {
             MappedResource resource = bestMatch.getMappedResourceFromRelativeWebURI(
                     relativeWebURI, isResourceURI, this);
-            log.fine("   Finally mapped to " + resource.getDatasetURI() + " (Dataset base: " + resource.getDataset().getDatasetBase()+ ", Prio: " + bestMatch.getPriority()  +")");
+            log.fine("   Finally mapped to " + resource.getDatasetURI() + " (URI pattern: " + resource.getDataset().getDatasetURIPattern() + ", Prio: " + bestMatch.getPriority()  +")");
             return resource;
         }
 

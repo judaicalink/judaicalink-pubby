@@ -125,8 +125,12 @@ public class Dataset {
 		return uri.startsWith(getDatasetBase()) 
 				&& datasetURIPattern.matcher(uri.substring(getDatasetBase().length())).matches();
 	}
-	
-	public MappedResource getMappedResourceFromDatasetURI(String datasetURI, Configuration configuration) {
+
+    public Pattern getDatasetURIPattern() {
+        return datasetURIPattern;
+    }
+
+    public MappedResource getMappedResourceFromDatasetURI(String datasetURI, Configuration configuration) {
 		return new MappedResource(
 				escapeURIDelimiters(datasetURI.substring(getDatasetBase().length())),
 				datasetURI,
