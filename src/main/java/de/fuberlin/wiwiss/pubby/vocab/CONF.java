@@ -49,5 +49,6 @@ public class CONF {
     public static final Property primaryResource = m.createProperty(NS + "primaryResource");
     public static final Property webDataResource = m.createProperty(NS + "webDataResource");
     public static final Property customRedirect = m.createProperty(NS + "customRedirect");
+    public static final Property escapeURIDelimiters = m.createProperty(NS + "escapeURIDelimiters");
 
 }

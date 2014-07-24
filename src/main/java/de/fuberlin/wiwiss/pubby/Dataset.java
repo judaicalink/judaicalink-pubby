@@ -42,6 +42,7 @@ public class Dataset {
     private String endpoint;
     private String defaultGraph;
     private Configuration config;
+    private boolean escapeURIDelimiters;
 
     private Logger log = Logger.getLogger(getClass().getName());
 	
@@ -55,6 +56,12 @@ public class Dataset {
 		} else {
 			datasetURIPattern = Pattern.compile(".*");
 		}
+                if (dsConfig.hasProperty(CONF.escapeURIDelimiters)) {
+			escapeURIDelimiters = dsConfig.getProperty(CONF.escapeURIDelimiters).getBoolean();
+		} else {
+			escapeURIDelimiters = true;
+		}
+                
 		if (dsConfig.hasProperty(CONF.fixUnescapedCharacters)) {
 			String chars = dsConfig.getProperty(CONF.fixUnescapedCharacters).getString();
 			fixUnescapeCharacters = new char[chars.length()];
@@ -131,7 +138,7 @@ public class Dataset {
     }
 
     public MappedResource getMappedResourceFromDatasetURI(String datasetURI, Configuration configuration) {
-		return new MappedResource(
+		return new MappedResource(                                
 				escapeURIDelimiters(datasetURI.substring(getDatasetBase().length())),
 				datasetURI,
 				configuration,
@@ -452,7 +459,12 @@ public class Dataset {
 	}
 
 	private String escapeURIDelimiters(String uri) {
+            if(escapeURIDelimiters) {
 		return uri.replaceAll("#", "%23").replaceAll("\\?", "%3F");
+            }    
+            else {
+                return uri;
+            }
 	}
 	
 	private String unescapeURIDelimiters(String uri) {
