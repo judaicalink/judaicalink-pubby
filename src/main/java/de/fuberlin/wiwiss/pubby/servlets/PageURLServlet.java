@@ -1,11 +1,14 @@
 package de.fuberlin.wiwiss.pubby.servlets;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.OWL;
+import com.hp.hpl.jena.vocabulary.RDF;
 import de.fuberlin.wiwiss.pubby.Configuration;
 import de.fuberlin.wiwiss.pubby.MappedResource;
 import de.fuberlin.wiwiss.pubby.ResourceDescription;
+import de.fuberlin.wiwiss.pubby.ResourceDescription.ResourceProperty;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
 
@@ -53,25 +56,35 @@ public class PageURLServlet extends BaseURLServlet {
         String title=null, comment=null;
         String primaryResourceURI = resource.getDataset().getPrimaryResource(resource.getDatasetURI());
         log.fine("Primary URI: " + primaryResourceURI);
-        List resourceDescriptions = new ArrayList();
+        List resourceDescriptions = new ArrayList();        
 		Iterator it = resource.getDataset().getPublishedResources(resource.getDatasetURI()).iterator();
         while (it.hasNext()) {
             String uri = (String) it.next();
             log.fine("Publishing description for URI: " + uri);
-            MappedResource mapped = config.getMappedResourceFromDatasetURI(uri);
+                MappedResource mapped = config.getMappedResourceFromDatasetURI(uri);
             Resource r = description.getResource(mapped.getWebURI());
             if (mapped.getDataset().getAddSameAsStatements()) {
                 r.addProperty(OWL.sameAs, description.createResource(mapped.getDatasetURI()));
             }
             log.fine("Adding description for published resource: " + uri);
             ResourceDescription desc = new ResourceDescription(
-                    mapped , description, config);
+                    mapped , description, config);  
             resourceDescriptions.add(desc);
-            if (mapped.getDatasetURI().equals(primaryResourceURI)) {
-                title = desc.getLabel();
+            if (mapped.getDatasetURI().equals(primaryResourceURI)) {  
+                if(mapped.getDataset().isNoWebTranslation()) {
+                    title = primaryResourceURI;
+                }
+                else {
+                    title = desc.getLabel();
+                }
                 comment = desc.getComment();
             }
-
+//            }
+//            else {
+//                log.fine("Adding description for published resource: " + uri);
+//            desc = new ResourceDescription(resource, description, config);  
+//            resourceDescriptions.add(desc);
+//            }
         }
 
 
@@ -101,6 +114,12 @@ public class PageURLServlet extends BaseURLServlet {
         context.put("resources", resourceDescriptions);
         context.put("showLabels", new Boolean(config.showLabels()));
         context.put("sparql_query", getSPARQLQuery(resource));
+        if(request.getParameter("unicorn")!=null) {
+            resource.getDataset().setUnicorn(true);
+        }
+        else {
+            resource.getDataset().setUnicorn(false);
+        }
 
         try {
 			Model metadata = ModelFactory.createDefaultModel();
@@ -115,7 +134,7 @@ public class PageURLServlet extends BaseURLServlet {
 			Map nsSet = metadata.getNsPrefixMap();
 			nsSet.putAll(description.getNsPrefixMap());
 			context.put("prefixes", nsSet.entrySet());
-			context.put("blankNodesMap", new HashMap());
+			context.put("blankNodesMap", new HashMap());                        
 		}
 		catch (Exception e) {
 			context.put("metadata", Boolean.FALSE);

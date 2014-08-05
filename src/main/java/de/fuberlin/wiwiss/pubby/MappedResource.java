@@ -27,7 +27,7 @@ public class MappedResource {
 	 * @return The dataset which contains the description of this resource
 	 */
 	public Dataset getDataset() {
-		return datasetConfig;
+		return getDatasetConfig();
 	}
 	
 	/**
@@ -41,8 +41,9 @@ public class MappedResource {
 	 * @return the resource's URI on the public Web server
 	 */
 	public String getWebURI() {
-		return serverConfig.getWebApplicationBaseURI() + 
-				datasetConfig.getWebResourcePrefix() + relativeWebURI;
+	if (getDatasetConfig().isNoWebTranslation()) return getDatasetURI();
+            return getServerConfig().getWebApplicationBaseURI() + 
+				getDatasetConfig().getWebResourcePrefix() + getRelativeWebURI();
 	}
 	
 	/**
@@ -51,7 +52,7 @@ public class MappedResource {
 
 	public String getPageURL() {
         if (getDataset().hasCustomRedirect()) return getDataset().getCustomRedirector().getPageURL(getWebURI());
-		return serverConfig.getWebApplicationBaseURI() + datasetConfig.getWebPagePrefix() + relativeWebURI;
+		return getServerConfig().getWebApplicationBaseURI() + getDatasetConfig().getWebPagePrefix() + getRelativeWebURI();
 	}
 	
 	/**
@@ -59,7 +60,7 @@ public class MappedResource {
 	 */
 	public String getDataURL() {
         if (getDataset().hasCustomRedirect()) return getDataset().getCustomRedirector().getDataURL(getWebURI());
-        return serverConfig.getWebApplicationBaseURI() + datasetConfig.getWebDataPrefix() + relativeWebURI;
+        return getServerConfig().getWebApplicationBaseURI() + getDatasetConfig().getWebDataPrefix() + getRelativeWebURI();
 	}
 		
 	public String getPathPageURL(Property property) {
@@ -79,11 +80,32 @@ public class MappedResource {
 	}
 	
 	private String getPathURL(String urlPrefix, Property property) {
-		if (serverConfig.getPrefixes().qnameFor(property.getURI()) == null) {
+		if (getServerConfig().getPrefixes().qnameFor(property.getURI()) == null) {
 			return null;
 		}
-		return serverConfig.getWebApplicationBaseURI() + urlPrefix +
-				serverConfig.getPrefixes().qnameFor(property.getURI()) + "/" +
-				relativeWebURI;
+		return getServerConfig().getWebApplicationBaseURI() + urlPrefix +
+				getServerConfig().getPrefixes().qnameFor(property.getURI()) + "/" +
+				getRelativeWebURI();
 	}
+
+    /**
+     * @return the relativeWebURI
+     */
+    public String getRelativeWebURI() {
+        return relativeWebURI;
+    }
+
+    /**
+     * @return the serverConfig
+     */
+    public Configuration getServerConfig() {
+        return serverConfig;
+    }
+
+    /**
+     * @return the datasetConfig
+     */
+    public Dataset getDatasetConfig() {
+        return datasetConfig;
+    }
 }

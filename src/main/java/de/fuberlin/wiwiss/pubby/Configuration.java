@@ -100,7 +100,7 @@ public class Configuration {
 		}
         this.vocabularyCache = new VocabularyCache(this);
 	}
-
+        
 	public MappedResource getMappedResourceFromDatasetURI(String datasetURI) {
 		Iterator it = datasets.iterator();
         Dataset bestMatch = null;
@@ -110,8 +110,8 @@ public class Configuration {
                 if (bestMatch == null || bestMatch.getPriority() > dataset.getPriority()) {
                     bestMatch = dataset;
                 }
-			}
-		}
+			             }
+            }
         return bestMatch==null?null:bestMatch.getMappedResourceFromDatasetURI(datasetURI, this);
 	}
 

@@ -42,7 +42,14 @@ public class Dataset {
     private String endpoint;
     private String defaultGraph;
     private Configuration config;
-    private boolean escapeURIDelimiters;
+    private final boolean escapeURIDelimiters;
+     private final boolean noWebTranslation;
+     private final boolean showOrigin;
+     private final String dataMapping;
+     private final String externalLinkPrefix;
+     private final String externalLinkProperty;
+     private boolean unicorn;
+     
 
     private Logger log = Logger.getLogger(getClass().getName());
 	
@@ -60,6 +67,31 @@ public class Dataset {
 			escapeURIDelimiters = dsConfig.getProperty(CONF.escapeURIDelimiters).getBoolean();
 		} else {
 			escapeURIDelimiters = true;
+		}
+                if (dsConfig.hasProperty(CONF.noWebTranslation)) {
+			noWebTranslation = dsConfig.getProperty(CONF.noWebTranslation).getBoolean();
+		} else {
+			noWebTranslation = false;
+		}
+                if (dsConfig.hasProperty(CONF.showOrigin)) {
+			showOrigin = dsConfig.getProperty(CONF.showOrigin).getBoolean();
+		} else {
+			showOrigin = false;
+		}
+                if (dsConfig.hasProperty(CONF.dataMapping)) {
+			dataMapping = dsConfig.getProperty(CONF.dataMapping).getResource().getURI();
+		} else {
+			dataMapping = "";
+		}
+                if (dsConfig.hasProperty(CONF.externalLinkPrefix)) {
+			externalLinkPrefix = dsConfig.getProperty(CONF.externalLinkPrefix).getString();
+		} else {
+			externalLinkPrefix = "";
+		}
+                if (dsConfig.hasProperty(CONF.externalLinkProperty)) {
+			externalLinkProperty = dsConfig.getProperty(CONF.externalLinkProperty).getString();
+		} else {
+			externalLinkProperty = "";
 		}
                 
 		if (dsConfig.hasProperty(CONF.fixUnescapedCharacters)) {
@@ -520,6 +552,55 @@ public class Dataset {
             }
         }
         return uri;
+    }
+
+    /**
+     * @return the noWebTranslation
+     */
+    public boolean isNoWebTranslation() {
+        return noWebTranslation;
+    }
+
+    /**
+     * @return the showOrigin
+     */
+    public boolean isShowOrigin() {
+        return showOrigin;
+    }
+
+    /**
+     * @return the dataMapping
+     */
+    public String getDataMapping() {
+        return dataMapping;
+    }
+
+    /**
+     * @return the externalLinkPrefix
+     */
+    public String getExternalLinkPrefix() {
+        return externalLinkPrefix;
+    }
+
+    /**
+     * @return the unicorn
+     */
+    public boolean isUnicorn() {
+        return unicorn;
+    }
+
+    /**
+     * @param unicorn the unicorn to set
+     */
+    public void setUnicorn(boolean unicorn) {
+        this.unicorn = unicorn;
+    }
+
+    /**
+     * @return the externalLinkProperty
+     */
+    public String getExternalLinkProperty() {
+        return externalLinkProperty;
     }
 
     public class SparqlMapping {

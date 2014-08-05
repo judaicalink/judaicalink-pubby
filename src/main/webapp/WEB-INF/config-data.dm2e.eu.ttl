@@ -61,7 +61,7 @@
     conf:projectHomepage <http://dm2e.eu>;
     # The Pubby root, where the webapp is running inside the servlet container.
     # Recommended. If not available, automatic detection is used.
-    conf:webBase <http://data.dm2e.eu/data/>;
+    # conf:webBase <http://data.dm2e.eu/data/>;
     # URL of an RDF file whose prefix mapping is to be used by the
     # server; defaults to <>, which is *this* file.
     # conf:usePrefixesFrom <http://lelystad.informatik.uni-mannheim.de:8080/prefixes.n3>;
@@ -81,7 +81,7 @@
         <http://dublincore.org/2012/06/14/dcelements.rdf>;
 #    conf:loadVocabularyFromFile
 #        "";
-    conf:defaultEndpoint <http://localhost:9997/dm2e-direct/sparql>;
+    conf:defaultEndpoint <http://localhost:19997/dm2e-direct/sparql>;
 
 
 
@@ -560,7 +560,7 @@
         # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
         # Common URI prefix of all resource URIs in the SPARQL dataset
         conf:datasetBase <http://data.dm2e.eu/data/>;
-        conf:priority "3";
+        conf:priority "10";
         conf:addSameAsStatements "false";
         # Will be appended to the conf:webBase to form the public
         # resource URIs; if not present, defaults to ""
@@ -691,6 +691,235 @@
 #        meta:endpointOperator <URI of the service provider who operates the SPARQL endpoint>;
 #        meta:endpointDataset <URI of the linked dataset that is exposed via the SPARQL endpoint>;
     ];
+
+
+# All links for a resource from a versioned linkset
+# special URI
+    conf:dataset [
+        # SPARQL endpoint URL of the dataset
+        conf:sparqlEndpoint "default";
+        # Default graph name to query (not necessary for most endpoints)
+        # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
+        # Common URI prefix of all resource URIs in the SPARQL dataset
+        conf:datasetBase <http://data.dm2e.eu/data/>;
+        conf:datasetURIPattern "(place|agent|concept)/([a-z-_]*)/([a-z-_]*)/(\\w*[-_]*)/([a-z-_]*)/([a-z-_]*)/([0-9]*)";
+        conf:priority "1";
+        conf:addSameAsStatements "false";
+        # Will be appended to the conf:webBase to form the public
+        # resource URIs; if not present, defaults to ""
+        conf:webResourcePrefix "";
+        # conf:customRedirect "de.fuberlin.wiwiss.pubby.dm2e.ResourceRedirector";
+        # Will be appended to the conf:webBase to form the public
+        # data URIs; if not present, defaults to "data/"
+        conf:webDataPrefix "rdf/";
+        # Will be appended to the conf:webBase to form the public
+        # page URIs; if not present, defaults to "page/"
+        conf:webPagePrefix "html/";
+        conf:useSparqlMapping [                        # resource / ls-provider / ls / version
+                    #/data/place/onb/abo/Nancy/uma/places-geonames-abo/20140312095216607
+                    conf:uriPattern "http://data.dm2e.eu/data/(place|agent|concept)/([a-z-_]*)/([a-z-_]*)/(\\w*[-_]*)/([a-z-_]*)/([a-z-_]*)/([0-9]*)";                    
+                    conf:sparqlQuery '''
+construct {?s ?p ?o. ?g ?pg ?og. ?sbl ?pbl ?obl. } where {
+graph ?g {
+?s ?p ?o.
+?g ?pg ?og.
+filter (?s=<http://data.dm2e.eu/data/$1/$2/$3/$4>)
+filter(?g=<http://data.dm2e.eu/data/linkset/$5/$6/$7>)
+OPTIONAL { ?sbl ?pbl ?obl. filter (?obl=?o)
+}
+}
+}
+                        ''';
+                    conf:publishResources
+                        "http://data.dm2e.eu/data/$1/$2/$3/$4", "http://data.dm2e.eu/data/linkset/$5/$6/$7";
+                    conf:primaryResource
+                        "http://data.dm2e.eu/data/$1/$2/$3/$4";
+                ];
+
+        # Fixes an issue with the server running behind an Apache proxy;
+        # can be ignored otherwise
+        conf:fixUnescapedCharacters "(),'!$&*+;=@";
+
+        # include metadata
+        conf:metadataTemplate "metadata.ttl";
+
+        # configure your metadata here
+        # Use properties with the meta: prefix where the property name
+        # corresponds to the placeholder URIs in metadata.ttl that begin
+        # with about:metadata:metadata:
+        # Examples for such properties are:
+#        meta:pubbyUser <URI of the data publisher who uses this Pubby>;
+#        meta:pubbyOperator <URI of the service provider who operates this Pubby>;
+#        meta:endpointUser <URI of the data publisher who uses the SPARQL endpoint queried by this Pubby>;
+#        meta:endpointOperator <URI of the service provider who operates the SPARQL endpoint>;
+#        meta:endpointDataset <URI of the linked dataset that is exposed via the SPARQL endpoint>;
+    ];
+
+
+# Contexualisation resource from our data (place/agent/concept)
+#
+    conf:dataset [
+        # SPARQL endpoint URL of the dataset
+        conf:sparqlEndpoint "default";
+        # Default graph name to query (not necessary for most endpoints)
+        # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
+        # Common URI prefix of all resource URIs in the SPARQL dataset
+        conf:datasetBase <http://data.dm2e.eu/data/>;
+        conf:datasetURIPattern "(place|agent|concept)/(.*)";
+        conf:priority "2";
+        conf:addSameAsStatements "false";
+        # Will be appended to the conf:webBase to form the public
+        # resource URIs; if not present, defaults to ""
+        conf:webResourcePrefix "";
+        # conf:customRedirect "de.fuberlin.wiwiss.pubby.dm2e.ResourceRedirector";
+        # Will be appended to the conf:webBase to form the public
+        # data URIs; if not present, defaults to "data/"
+        conf:webDataPrefix "rdf/";
+        # Will be appended to the conf:webBase to form the public
+        # page URIs; if not present, defaults to "page/"
+        conf:webPagePrefix "html/";
+        conf:escapeURIDelimiters "false";
+        #show the oh yeah button
+        conf:showOrigin "true";
+        #prefix for the overview page of an external URI, e.g. for DBpedia
+        conf:externalLinkPrefix "external/";
+        #for (external) resources linked via this property the "more button" (links to its overview page) is shown
+        conf:externalLinkProperty "http://www.w3.org/2002/07/owl#sameAs";
+
+        conf:useSparqlMapping [                        # resource 
+                    conf:uriPattern "http://data.dm2e.eu/data/(place|agent|concept)/(.*)";
+                    conf:sparqlQuery '''
+
+
+construct {?s ?p ?o. ?statUri a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement>. ?statUri <http://www.w3.org/1999/02/22-rdf-syntax-ns#subject> ?s. ?statUri <http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> ?p. ?statUri <http://www.w3.org/2000/01/rdf-schema#object> ?o. ?statUri <http://www.w3.org/1999/02/22-rdf-syntax-ns#seeAlso> ?g. ?statUri <http://www.w3.org/ns/prov#wasGeneratedBy> ?prov. ?statUri <http://www.w3.org/2000/01/rdf-schema#comment> ?comment.
+?p <http://hasValues> ?counter} where {
+{select ?s ?p ?o ?prov ?g ?comment (URI(CONCAT(STR(?s),"#",ENCODE_FOR_URI(STR(?o)))) AS ?statUri)
+{{
+select ?s ?p ?o ?prov ?g ?comment where {
+graph ?g {
+?s ?p ?o.
+?g <http://www.w3.org/ns/prov#wasGeneratedBy> ?prov.
+?g <http://www.w3.org/2000/01/rdf-schema#comment> ?comment.
+filter (?s=<http://data.dm2e.eu/data/$1/$2>)
+}
+}
+}
+union 
+{
+select ?s ?p ?o ?prov ?g ?comment where {
+graph ?g {
+?s ?p ?o.
+?g <http://www.w3.org/ns/prov#wasGeneratedBy> ?prov.
+?g <http://www.w3.org/2000/01/rdf-schema#comment> ?comment.
+filter (?o=<http://data.dm2e.eu/data/$1/$2>)
+}
+} limit 5
+}
+}
+}
+union
+{
+select (count(*) as ?counter) ?p where {
+graph ?g {
+?s ?p ?o
+filter (?s=<http://data.dm2e.eu/data/$1/$2> || ?o=<http://data.dm2e.eu/data/$1/$2>)
+}
+} group by ?p
+}
+}
+
+                        ''';
+                    conf:publishResources
+                        "http://data.dm2e.eu/data/$1/$2";
+                    conf:primaryResource
+                        "http://data.dm2e.eu/data/$1/$2";
+                ];
+
+        # Fixes an issue with the server running behind an Apache proxy;
+        # can be ignored otherwise
+        conf:fixUnescapedCharacters "(),'!$&*+;=@";
+
+        # include metadata
+        conf:metadataTemplate "metadata.ttl";
+
+        # configure your metadata here
+        # Use properties with the meta: prefix where the property name
+        # corresponds to the placeholder URIs in metadata.ttl that begin
+        # with about:metadata:metadata:
+        # Examples for such properties are:
+#        meta:pubbyUser <URI of the data publisher who uses this Pubby>;
+#        meta:pubbyOperator <URI of the service provider who operates this Pubby>;
+#        meta:endpointUser <URI of the data publisher who uses the SPARQL endpoint queried by this Pubby>;
+#        meta:endpointOperator <URI of the service provider who operates the SPARQL endpoint>;
+#        meta:endpointDataset <URI of the linked dataset that is exposed via the SPARQL endpoint>;
+    ];
+
+
+
+# External
+#
+    conf:dataset [
+        # SPARQL endpoint URL of the dataset
+        conf:sparqlEndpoint "default";
+        # Default graph name to query (not necessary for most endpoints)
+        # conf:sparqlDefaultGraph <http://141.20.126.155/api/file/50b8c6d228f37c3d62000007/data>;
+        # Common URI prefix of all resource URIs in the SPARQL dataset
+        conf:datasetBase <http://>;
+        conf:datasetURIPattern "(.*)";
+        conf:priority "5";
+        conf:addSameAsStatements "false";
+        # Will be appended to the conf:webBase to form the public
+        # resource URIs; if not present, defaults to ""
+        conf:webResourcePrefix "external/";
+        # conf:customRedirect "de.fuberlin.wiwiss.pubby.dm2e.ResourceRedirector";
+        # Will be appended to the conf:webBase to form the public
+        # data URIs; if not present, defaults to "data/"
+        conf:webDataPrefix "rdf/external/";
+        # Will be appended to the conf:webBase to form the public
+        # page URIs; if not present, defaults to "page/"
+        conf:webPagePrefix "html/external/";
+        conf:escapeURIDelimiters "false";
+        conf:noWebTranslation "true";
+
+        conf:useSparqlMapping [                        # resource 
+                    conf:uriPattern "^(.*)$";
+                    conf:sparqlQuery '''
+
+
+construct {?o ?p ?s.} where {
+graph ?g {
+?s ?p ?o.
+filter (?o=<$1>)
+}
+}
+
+
+                        ''';
+                    conf:publishResources
+                        "$1";
+                    conf:primaryResource
+                        "$1";
+                ];
+
+        # Fixes an issue with the server running behind an Apache proxy;
+        # can be ignored otherwise (problems with external URIs!)
+        #conf:fixUnescapedCharacters "(),'!$&*+;=@";
+
+        # include metadata
+        conf:metadataTemplate "metadata.ttl";
+
+        # configure your metadata here
+        # Use properties with the meta: prefix where the property name
+        # corresponds to the placeholder URIs in metadata.ttl that begin
+        # with about:metadata:metadata:
+        # Examples for such properties are:
+#        meta:pubbyUser <URI of the data publisher who uses this Pubby>;
+#        meta:pubbyOperator <URI of the service provider who operates this Pubby>;
+#        meta:endpointUser <URI of the data publisher who uses the SPARQL endpoint queried by this Pubby>;
+#        meta:endpointOperator <URI of the service provider who operates the SPARQL endpoint>;
+#        meta:endpointDataset <URI of the linked dataset that is exposed via the SPARQL endpoint>;
+    ];
+
 
 
 # Omnom Data

@@ -57,6 +57,9 @@
               This page shows information obtained from the SPARQL endpoint at <a class="sparql-uri" href="$sparql_endpoint">$sparql_endpoint</a>.<br />
         #end
 
+  ##      <a href="javascript:test()"><img id="uniimg" src="${server_base}static/question.gif"/></a>
+        ##style="display:none"
+
         #if ($rdf_link)
               <img src="${server_base}static/rdf-icon.gif" />
               <a href="$rdf_link?output=ttl">As Turtle</a> |
