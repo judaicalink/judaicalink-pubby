@@ -783,48 +783,23 @@ OPTIONAL { ?sbl ?pbl ?obl. filter (?obl=?o)
         conf:showOrigin "true";
         #prefix for the overview page of an external URI, e.g. for DBpedia
         conf:externalLinkPrefix "external/";
-        #for (external) resources linked via this property the "more button" (links to its overview page) is shown
-        conf:externalLinkProperty "http://www.w3.org/2002/07/owl#sameAs";
+        #for (external) resources linked via these properties (separated by a comma) the "more button" (links to its overview page) is shown
+        conf:externalLinkProperties "http://www.w3.org/2002/07/owl#sameAs";
+        conf:orderProperty "http://purl.org/dc/elements/1.1/date";
 
         conf:useSparqlMapping [                        # resource 
                     conf:uriPattern "http://data.dm2e.eu/data/(place|agent|concept)/(.*)";
                     conf:sparqlQuery '''
 
 
-construct {?s ?p ?o. ?statUri a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement>. ?statUri <http://www.w3.org/1999/02/22-rdf-syntax-ns#subject> ?s. ?statUri <http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> ?p. ?statUri <http://www.w3.org/2000/01/rdf-schema#object> ?o. ?statUri <http://www.w3.org/1999/02/22-rdf-syntax-ns#seeAlso> ?g. ?statUri <http://www.w3.org/ns/prov#wasGeneratedBy> ?prov. ?statUri <http://www.w3.org/2000/01/rdf-schema#comment> ?comment.
-?p <http://hasValues> ?counter} where {
-{select ?s ?p ?o ?prov ?g ?comment (URI(CONCAT(STR(?s),"#",ENCODE_FOR_URI(STR(?o)))) AS ?statUri)
-{{
-select ?s ?p ?o ?prov ?g ?comment where {
+construct {?s ?p ?o. ?statUri a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement>. ?statUri <http://www.w3.org/1999/02/22-rdf-syntax-ns#subject> ?s. ?statUri <http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> ?p. ?statUri <http://www.w3.org/2000/01/rdf-schema#object> ?o. ?statUri <http://www.w3.org/1999/02/22-rdf-syntax-ns#seeAlso> ?g. ?statUri <http://www.w3.org/ns/prov#wasGeneratedBy> ?prov. ?statUri <http://www.w3.org/2000/01/rdf-schema#comment> ?comment} where {
+select ?s ?p ?o ?prov ?g ?comment (URI(CONCAT(STR(?s),"#",ENCODE_FOR_URI(STR(?o)))) AS ?statUri) {
 graph ?g {
 ?s ?p ?o.
 ?g <http://www.w3.org/ns/prov#wasGeneratedBy> ?prov.
 ?g <http://www.w3.org/2000/01/rdf-schema#comment> ?comment.
-filter (?s=<http://data.dm2e.eu/data/$1/$2>)
-}
-}
-}
-union 
-{
-select ?s ?p ?o ?prov ?g ?comment where {
-graph ?g {
-?s ?p ?o.
-?g <http://www.w3.org/ns/prov#wasGeneratedBy> ?prov.
-?g <http://www.w3.org/2000/01/rdf-schema#comment> ?comment.
-filter (?o=<http://data.dm2e.eu/data/$1/$2>)
-}
-} limit 5
-}
-}
-}
-union
-{
-select (count(*) as ?counter) ?p where {
-graph ?g {
-?s ?p ?o
 filter (?s=<http://data.dm2e.eu/data/$1/$2> || ?o=<http://data.dm2e.eu/data/$1/$2>)
 }
-} group by ?p
 }
 }
 

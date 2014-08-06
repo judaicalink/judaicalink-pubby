@@ -11,6 +11,7 @@ import de.fuberlin.wiwiss.pubby.vocab.META;
 import javax.servlet.ServletContext;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.regex.Pattern;
 
 /**
  * The server's configuration.
- * 
+ *
  * @author Richard Cyganiak (richard@cyganiak.de)
  * @author Hannes Mühleisen
  * @author Olaf Hartig
@@ -27,118 +28,130 @@ import java.util.regex.Pattern;
  * @version $Id$
  */
 public class Dataset {
-	private final Model model;
-	private final Resource dsConfig;
-	private final DataSource dataSource;
-	private final Pattern datasetURIPattern;
-	private final char[] fixUnescapeCharacters;
-	private final Resource rdfDocumentMetadataTemplate;
-	private final String metadataTemplate;
-	private final static String metadataPlaceholderURIPrefix = "about:metadata:";
-	private Calendar currentTime;
-	private Resource currentDocRepr;
+
+    private final Model model;
+    private final Resource dsConfig;
+    private final DataSource dataSource;
+    private final Pattern datasetURIPattern;
+    private final char[] fixUnescapeCharacters;
+    private final Resource rdfDocumentMetadataTemplate;
+    private final String metadataTemplate;
+    private final static String metadataPlaceholderURIPrefix = "about:metadata:";
+    private Calendar currentTime;
+    private Resource currentDocRepr;
     private final List sparqlMappings;
     private URIRedirector redirector;
     private String endpoint;
     private String defaultGraph;
     private Configuration config;
     private final boolean escapeURIDelimiters;
-     private final boolean noWebTranslation;
-     private final boolean showOrigin;
-     private final String dataMapping;
-     private final String externalLinkPrefix;
-     private final String externalLinkProperty;
-     private boolean unicorn;
-     
+    private final boolean noWebTranslation;
+    private final boolean showOrigin;
+    private final String dataMapping;
+    private final String externalLinkPrefix;
+    private final List<String> externalLinkProperties;
+    private final String orderProperty;
 
     private Logger log = Logger.getLogger(getClass().getName());
-	
-	public Dataset(Configuration config, Resource dsConfig) {
+
+    public Dataset(Configuration config, Resource dsConfig) {
         model = dsConfig.getModel();
-		this.dsConfig = dsConfig;
+        this.dsConfig = dsConfig;
         this.config = config;
-		if (dsConfig.hasProperty(CONF.datasetURIPattern)) {
-			datasetURIPattern = Pattern.compile(
-					dsConfig.getProperty(CONF.datasetURIPattern).getString());
-		} else {
-			datasetURIPattern = Pattern.compile(".*");
-		}
-                if (dsConfig.hasProperty(CONF.escapeURIDelimiters)) {
-			escapeURIDelimiters = dsConfig.getProperty(CONF.escapeURIDelimiters).getBoolean();
-		} else {
-			escapeURIDelimiters = true;
-		}
-                if (dsConfig.hasProperty(CONF.noWebTranslation)) {
-			noWebTranslation = dsConfig.getProperty(CONF.noWebTranslation).getBoolean();
-		} else {
-			noWebTranslation = false;
-		}
-                if (dsConfig.hasProperty(CONF.showOrigin)) {
-			showOrigin = dsConfig.getProperty(CONF.showOrigin).getBoolean();
-		} else {
-			showOrigin = false;
-		}
-                if (dsConfig.hasProperty(CONF.dataMapping)) {
-			dataMapping = dsConfig.getProperty(CONF.dataMapping).getResource().getURI();
-		} else {
-			dataMapping = "";
-		}
-                if (dsConfig.hasProperty(CONF.externalLinkPrefix)) {
-			externalLinkPrefix = dsConfig.getProperty(CONF.externalLinkPrefix).getString();
-		} else {
-			externalLinkPrefix = "";
-		}
-                if (dsConfig.hasProperty(CONF.externalLinkProperty)) {
-			externalLinkProperty = dsConfig.getProperty(CONF.externalLinkProperty).getString();
-		} else {
-			externalLinkProperty = "";
-		}
-                
-		if (dsConfig.hasProperty(CONF.fixUnescapedCharacters)) {
-			String chars = dsConfig.getProperty(CONF.fixUnescapedCharacters).getString();
-			fixUnescapeCharacters = new char[chars.length()];
-			for (int i = 0; i < chars.length(); i++) {
-				fixUnescapeCharacters[i] = chars.charAt(i);
-			}
-		} else {
-			fixUnescapeCharacters = new char[0];
-		}
-		if (dsConfig.hasProperty(CONF.rdfDocumentMetadata)) {
-			rdfDocumentMetadataTemplate = dsConfig.getProperty(CONF.rdfDocumentMetadata).getResource();
-		} else {
-			rdfDocumentMetadataTemplate = null;
-		}
-		if (dsConfig.hasProperty(CONF.metadataTemplate)) {
-			metadataTemplate = dsConfig.getProperty(CONF.metadataTemplate).getString();
-		} else {
-			metadataTemplate = null;
-		}
-		if (dsConfig.hasProperty(CONF.sparqlEndpoint)) {
-			endpoint = null;
+        if (dsConfig.hasProperty(CONF.datasetURIPattern)) {
+            datasetURIPattern = Pattern.compile(
+                    dsConfig.getProperty(CONF.datasetURIPattern).getString());
+        } else {
+            datasetURIPattern = Pattern.compile(".*");
+        }
+        if (dsConfig.hasProperty(CONF.escapeURIDelimiters)) {
+            escapeURIDelimiters = dsConfig.getProperty(CONF.escapeURIDelimiters).getBoolean();
+        } else {
+            escapeURIDelimiters = true;
+        }
+        if (dsConfig.hasProperty(CONF.noWebTranslation)) {
+            noWebTranslation = dsConfig.getProperty(CONF.noWebTranslation).getBoolean();
+        } else {
+            noWebTranslation = false;
+        }
+        if (dsConfig.hasProperty(CONF.showOrigin)) {
+            showOrigin = dsConfig.getProperty(CONF.showOrigin).getBoolean();
+        } else {
+            showOrigin = false;
+        }
+        if (dsConfig.hasProperty(CONF.dataMapping)) {
+            dataMapping = dsConfig.getProperty(CONF.dataMapping).getResource().getURI();
+        } else {
+            dataMapping = "";
+        }
+        if (dsConfig.hasProperty(CONF.externalLinkPrefix)) {
+            externalLinkPrefix = dsConfig.getProperty(CONF.externalLinkPrefix).getString();
+        } else {
+            externalLinkPrefix = "";
+        }
+        if (dsConfig.hasProperty(CONF.externalLinkProperties)) {                
+            String allProperties = dsConfig.getProperty(CONF.externalLinkProperties).getString();
+            if(allProperties.contains(",")) {
+                externalLinkProperties = Arrays.asList(allProperties.split(","));
+            }
+            else {
+                externalLinkProperties = new ArrayList<String>();
+                externalLinkProperties.add(allProperties);
+            }
+        } else {
+            externalLinkProperties = new ArrayList<String>();
+        }
+
+        if (dsConfig.hasProperty(CONF.fixUnescapedCharacters)) {
+            String chars = dsConfig.getProperty(CONF.fixUnescapedCharacters).getString();
+            fixUnescapeCharacters = new char[chars.length()];
+            for (int i = 0; i < chars.length(); i++) {
+                fixUnescapeCharacters[i] = chars.charAt(i);
+            }
+        } else {
+            fixUnescapeCharacters = new char[0];
+        }
+        if (dsConfig.hasProperty(CONF.orderProperty)) {
+            orderProperty = dsConfig.getProperty(CONF.orderProperty).getString();
+        } else {
+            orderProperty = "";
+        }
+        if (dsConfig.hasProperty(CONF.rdfDocumentMetadata)) {
+            rdfDocumentMetadataTemplate = dsConfig.getProperty(CONF.rdfDocumentMetadata).getResource();
+        } else {
+            rdfDocumentMetadataTemplate = null;
+        }
+        if (dsConfig.hasProperty(CONF.metadataTemplate)) {
+            metadataTemplate = dsConfig.getProperty(CONF.metadataTemplate).getString();
+        } else {
+            metadataTemplate = null;
+        }
+        if (dsConfig.hasProperty(CONF.sparqlEndpoint)) {
+            endpoint = null;
             if (dsConfig.getProperty(CONF.sparqlEndpoint).getObject().isResource()) {
                 endpoint = dsConfig.getProperty(CONF.sparqlEndpoint).getResource().getURI();
             } else {
                 endpoint = config.getDefaultEndpoint();
             }
-            if (endpoint==null) {
+            if (endpoint == null) {
                 log.severe("No endpoint configured for dataset: " + getDatasetBase());
                 throw new RuntimeException("No default endpoint and no dataset endpoint has been defined!");
             } else {
                 log.fine("Endpoint: " + endpoint);
             }
             defaultGraph = dsConfig.hasProperty(CONF.sparqlDefaultGraph)
-					? dsConfig.getProperty(CONF.sparqlDefaultGraph).getResource().getURI()
-					: null;
-			dataSource = new RemoteSPARQLDataSource(endpoint, defaultGraph, this);
-		} else {
-			Model data = ModelFactory.createDefaultModel();
-			StmtIterator it = dsConfig.listProperties(CONF.loadRDF);
-			while (it.hasNext()) {
-				Statement stmt = it.nextStatement();
-				FileManager.get().readModel(data, stmt.getResource().getURI());
-			}
-			dataSource = new ModelDataSource(data);
-		}
+                    ? dsConfig.getProperty(CONF.sparqlDefaultGraph).getResource().getURI()
+                    : null;
+            dataSource = new RemoteSPARQLDataSource(endpoint, defaultGraph, this);
+        } else {
+            Model data = ModelFactory.createDefaultModel();
+            StmtIterator it = dsConfig.listProperties(CONF.loadRDF);
+            while (it.hasNext()) {
+                Statement stmt = it.nextStatement();
+                FileManager.get().readModel(data, stmt.getResource().getURI());
+            }
+            dataSource = new ModelDataSource(data);
+        }
         sparqlMappings = new ArrayList();
         StmtIterator it = model.listStatements(dsConfig, CONF.useSparqlMapping, (RDFNode) null);
         while (it.hasNext()) {
@@ -158,35 +171,35 @@ public class Dataset {
                 throw new RuntimeException(e);
             }
         }
-	}
+    }
 
-	public boolean isDatasetURI(String uri) {
-		return uri.startsWith(getDatasetBase()) 
-				&& datasetURIPattern.matcher(uri.substring(getDatasetBase().length())).matches();
-	}
+    public boolean isDatasetURI(String uri) {
+        return uri.startsWith(getDatasetBase())
+                && datasetURIPattern.matcher(uri.substring(getDatasetBase().length())).matches();
+    }
 
     public Pattern getDatasetURIPattern() {
         return datasetURIPattern;
     }
 
     public MappedResource getMappedResourceFromDatasetURI(String datasetURI, Configuration configuration) {
-		return new MappedResource(                                
-				escapeURIDelimiters(datasetURI.substring(getDatasetBase().length())),
-				datasetURI,
-				configuration,
-				this);
-	}
+        return new MappedResource(
+                escapeURIDelimiters(datasetURI.substring(getDatasetBase().length())),
+                datasetURI,
+                configuration,
+                this);
+    }
 
-	public MappedResource getMappedResourceFromRelativeWebURI(String relativeWebURI, 
-			boolean isResourceURI, Configuration configuration) {
-		if (isResourceURI) {
-			if (!"".equals(getWebResourcePrefix())) {
-				if (!relativeWebURI.startsWith(getWebResourcePrefix())) {
-					return null;
-				}
-				relativeWebURI = relativeWebURI.substring(getWebResourcePrefix().length());
-			}
-		}  else {
+    public MappedResource getMappedResourceFromRelativeWebURI(String relativeWebURI,
+            boolean isResourceURI, Configuration configuration) {
+        if (isResourceURI) {
+            if (!"".equals(getWebResourcePrefix())) {
+                if (!relativeWebURI.startsWith(getWebResourcePrefix())) {
+                    return null;
+                }
+                relativeWebURI = relativeWebURI.substring(getWebResourcePrefix().length());
+            }
+        } else {
             if (relativeWebURI.startsWith(getWebDataPrefix())) {
                 relativeWebURI = relativeWebURI.substring(getWebDataPrefix().length());
             } else if (relativeWebURI.startsWith(getWebPagePrefix())) {
@@ -196,32 +209,32 @@ public class Dataset {
             }
 
         }
-		relativeWebURI = fixUnescapedCharacters(relativeWebURI);
-		if (!datasetURIPattern.matcher(relativeWebURI).matches()) {
-			return null;
-		}
-		return new MappedResource(
-				relativeWebURI,
-				getDatasetBase() + unescapeURIDelimiters(relativeWebURI),
-				configuration,
-				this);
-	}
+        relativeWebURI = fixUnescapedCharacters(relativeWebURI);
+        if (!datasetURIPattern.matcher(relativeWebURI).matches()) {
+            return null;
+        }
+        return new MappedResource(
+                relativeWebURI,
+                getDatasetBase() + unescapeURIDelimiters(relativeWebURI),
+                configuration,
+                this);
+    }
 
     public String getDatasetBase() {
         return dsConfig.getProperty(CONF.datasetBase).getResource().getURI();
     }
+
     public int getPriority() {
         return getIntConfigValue(CONF.priority, 0);
     }
 
-
     public boolean getAddSameAsStatements() {
-		return getBooleanConfigValue(CONF.addSameAsStatements, false);
-	}
-	
-	public DataSource getDataSource() {
-		return dataSource;
-	}
+        return getBooleanConfigValue(CONF.addSameAsStatements, false);
+    }
+
+    public DataSource getDataSource() {
+        return dataSource;
+    }
 
     public String getEndpoint() {
         return endpoint;
@@ -230,10 +243,10 @@ public class Dataset {
     public String getDefaultGraph() {
         return defaultGraph;
     }
-	
-	public boolean redirectRDFRequestsToEndpoint() {
-		return getBooleanConfigValue(CONF.redirectRDFRequestsToEndpoint, false);
-	}
+
+    public boolean redirectRDFRequestsToEndpoint() {
+        return getBooleanConfigValue(CONF.redirectRDFRequestsToEndpoint, false);
+    }
 
     public String getWebResourcePrefix() {
         if (dsConfig.hasProperty(CONF.webResourcePrefix)) {
@@ -241,6 +254,7 @@ public class Dataset {
         }
         return "";
     }
+
     public String getWebDataPrefix() {
         if (dsConfig.hasProperty(CONF.webDataPrefix)) {
             return dsConfig.getProperty(CONF.webDataPrefix).getString();
@@ -260,7 +274,7 @@ public class Dataset {
     }
 
     public boolean hasCustomRedirect() {
-        return redirector!=null;
+        return redirector != null;
     }
 
     public boolean isDataResource() {
@@ -268,183 +282,191 @@ public class Dataset {
     }
 
     public void addDocumentMetadata(Model document, Resource documentResource) {
-		if (rdfDocumentMetadataTemplate == null) {
-			return;
-		}
-		StmtIterator it = rdfDocumentMetadataTemplate.listProperties();
-		while (it.hasNext()) {
-			Statement stmt = it.nextStatement();
-			document.add(documentResource, stmt.getPredicate(), stmt.getObject());
-		}
-		it = this.model.listStatements(null, null, rdfDocumentMetadataTemplate);
-		while (it.hasNext()) {
-			Statement stmt = it.nextStatement();
-			if (stmt.getPredicate().equals(CONF.rdfDocumentMetadata)) {
-				continue;
-			}
-			document.add(stmt.getSubject(), stmt.getPredicate(), documentResource);
-		}
-	}
-	
-	public Resource addMetadataFromTemplate(Model document, MappedResource describedResource, ServletContext context) {
-		if (metadataTemplate == null) {
-			return null;
-		}
-		
-		currentTime = Calendar.getInstance();
-		
-		// add metadata from templates
-		Model tplModel = ModelFactory.createDefaultModel();
-		String tplPath = context.getRealPath("/") + "/WEB-INF/templates/" + metadataTemplate;
-		FileManager.get().readModel( tplModel, tplPath, FileUtils.guessLang(tplPath,"N3") );
+        if (rdfDocumentMetadataTemplate == null) {
+            return;
+        }
+        StmtIterator it = rdfDocumentMetadataTemplate.listProperties();
+        while (it.hasNext()) {
+            Statement stmt = it.nextStatement();
+            document.add(documentResource, stmt.getPredicate(), stmt.getObject());
+        }
+        it = this.model.listStatements(null, null, rdfDocumentMetadataTemplate);
+        while (it.hasNext()) {
+            Statement stmt = it.nextStatement();
+            if (stmt.getPredicate().equals(CONF.rdfDocumentMetadata)) {
+                continue;
+            }
+            document.add(stmt.getSubject(), stmt.getPredicate(), documentResource);
+        }
+    }
 
-		// iterate over template statements to replace placeholders
-		Model metadata = ModelFactory.createDefaultModel();
-		currentDocRepr = metadata.createResource();
-		StmtIterator it = tplModel.listStatements();
-		while (it.hasNext()) {
-			Statement stmt = it.nextStatement();
-			Resource subj = stmt.getSubject();
-			Property pred = stmt.getPredicate();
-			RDFNode  obj  = stmt.getObject();
-			
-			try {
-				if (subj.toString().contains(metadataPlaceholderURIPrefix)){
-					final RDFNode parsedPlaceHolder = parsePlaceholder(subj, describedResource, context);
-					if (subj == null || ! parsedPlaceHolder.isURIResource()) {
-						// create a unique blank node with a fixed id.
-						subj = model.createResource(new AnonId(String.valueOf(stmt.getSubject().hashCode())));
-					} else {
-						subj = parsedPlaceHolder.asResource();
-					}
-				}
-				
-				if (obj.toString().contains(metadataPlaceholderURIPrefix)){
-					obj = parsePlaceholder(obj, describedResource, context);
-				}
-				
-				// only add statements with some objects
-				if (obj != null) {
-					stmt = metadata.createStatement(subj,pred,obj);
-					metadata.add(stmt);
-				}
-			} catch (Exception e) {
-				// something went wrong, oops - lets better remove the offending statement
-				metadata.remove(stmt);
-				e.printStackTrace();
-			}
-		}
-		
-		// remove blank nodes that don't have any properties
-		boolean changes = true;
-		while ( changes ) {
-			changes = false;
-			StmtIterator stmtIt = metadata.listStatements();
-			List remList = new ArrayList();
-			while (stmtIt.hasNext()) {
-				Statement s = stmtIt.nextStatement();
-				if (    s.getObject().isAnon()
-				     && ! ((Resource) s.getObject().as(Resource.class)).listProperties().hasNext() ) {
-					remList.add(s);
-					changes = true;
-				}
-			}
-			metadata.remove(remList);
-		}
+    public Resource addMetadataFromTemplate(Model document, MappedResource describedResource, ServletContext context) {
+        if (metadataTemplate == null) {
+            return null;
+        }
 
-		if (document != null) {
-			document.add( metadata );
-		}
+        currentTime = Calendar.getInstance();
 
-		return currentDocRepr;
-	}
-	
-	private RDFNode parsePlaceholder(RDFNode phRes, MappedResource describedResource, ServletContext context) {
-		String phURI = phRes.asNode().getURI();
-		// get package name and placeholder name from placeholder URI
-		phURI = phURI.replace(metadataPlaceholderURIPrefix, "");
-		String phPackage = phURI.substring(0, phURI.indexOf(":")+1);
-		String phName = phURI.replace(phPackage, "");
-		phPackage = phPackage.replace(":", "");
-		
-		if (phPackage.equals("runtime")) {
-			// <about:metadata:runtime:query> - the SPARQL Query used to get the RDF Graph
-			if (phName.equals("query")) {
-				RemoteSPARQLDataSource ds = (RemoteSPARQLDataSource) describedResource.getDataset().getDataSource();
-				return model.createTypedLiteral(ds.getPreviousDescribeQuery());
-			}
-			// <about:metadata:runtime:time> - the current time
-			if (phName.equals("time")) {
-				return model.createTypedLiteral(currentTime);
-			}
-			// <about:metadata:runtime:graph> - URI of the graph
-			if (phName.equals("graph")) {
-				// Replaced the commented line by the following one because the
-				// RDF graph we want to talk about is a specific representation
-				// of the data identified by the getDataURL() URI.
-				//                                       Olaf, May 28, 2010
-				// return model.createResource(describedResource.getDataURL());
-				return currentDocRepr;
-			}
-			// <about:metadata:runtime:data> - URI of the data
-			if (phName.equals("data")) {
-				return model.createResource(describedResource.getDataURL());
-			}
-			// <about:metadata:runtime:resource> - URI of the resource
-			if (phName.equals("resource")) {
-				return model.createResource(describedResource.getWebURI());
-			}
-		}
-		
-		// <about:metadata:config:*> - The configuration parameters
-		if (phPackage.equals("config")) {
-			// look for requested property in the dataset config
-			Property p  = model.createProperty(CONF.NS + phName);
-			if (dsConfig.hasProperty(p))
-				return dsConfig.getProperty(p).getObject();
-			
-			// find pointer to the global configuration set...
-			StmtIterator it = dsConfig.getModel().listStatements(null, CONF.dataset, dsConfig);
-			Statement ptrStmt = it.nextStatement();
-			if (ptrStmt == null) return null;
-			
-			// look in global config if nothing found so far
-			Resource globalConfig = ptrStmt.getSubject();
-			if (globalConfig.hasProperty(p))
-				return globalConfig.getProperty(p).getObject();
-		}
-		
-		// <about:metadata:metadata:*> - The metadata provided by users
-		if (phPackage.equals("metadata")) {
-			// look for requested property in the dataset config
-			Property p  = model.createProperty(META.NS + phName);
-			if (dsConfig.hasProperty(p))
-				return dsConfig.getProperty(p).getObject();
-			
-			// find pointer to the global configuration set...
-			StmtIterator it = dsConfig.getModel().listStatements(null, CONF.dataset, dsConfig);
-			Statement ptrStmt = it.nextStatement();
-			if (ptrStmt == null) return null;
-			
-			// look in global config if nothing found so far
-			Resource globalConfig = ptrStmt.getSubject();
-			if (globalConfig.hasProperty(p))
-				return globalConfig.getProperty(p).getObject();
-		}
+        // add metadata from templates
+        Model tplModel = ModelFactory.createDefaultModel();
+        String tplPath = context.getRealPath("/") + "/WEB-INF/templates/" + metadataTemplate;
+        FileManager.get().readModel(tplModel, tplPath, FileUtils.guessLang(tplPath, "N3"));
 
-		return model.createResource(new AnonId(String.valueOf(phRes.hashCode())));
-	}
-	
-	private boolean getBooleanConfigValue(Property property, boolean defaultValue) {
-		if (!dsConfig.hasProperty(property)) {
-			return defaultValue;
-		}
-		Literal value = dsConfig.getProperty(property).getLiteral();
-		if (XSD.xboolean.equals(value.getDatatype())) {
-			return value.getBoolean();
-		}
-		return "true".equals(value.getString());
-	}
+        // iterate over template statements to replace placeholders
+        Model metadata = ModelFactory.createDefaultModel();
+        currentDocRepr = metadata.createResource();
+        StmtIterator it = tplModel.listStatements();
+        while (it.hasNext()) {
+            Statement stmt = it.nextStatement();
+            Resource subj = stmt.getSubject();
+            Property pred = stmt.getPredicate();
+            RDFNode obj = stmt.getObject();
+
+            try {
+                if (subj.toString().contains(metadataPlaceholderURIPrefix)) {
+                    final RDFNode parsedPlaceHolder = parsePlaceholder(subj, describedResource, context);
+                    if (subj == null || !parsedPlaceHolder.isURIResource()) {
+                        // create a unique blank node with a fixed id.
+                        subj = model.createResource(new AnonId(String.valueOf(stmt.getSubject().hashCode())));
+                    } else {
+                        subj = parsedPlaceHolder.asResource();
+                    }
+                }
+
+                if (obj.toString().contains(metadataPlaceholderURIPrefix)) {
+                    obj = parsePlaceholder(obj, describedResource, context);
+                }
+
+                // only add statements with some objects
+                if (obj != null) {
+                    stmt = metadata.createStatement(subj, pred, obj);
+                    metadata.add(stmt);
+                }
+            } catch (Exception e) {
+                // something went wrong, oops - lets better remove the offending statement
+                metadata.remove(stmt);
+                e.printStackTrace();
+            }
+        }
+
+        // remove blank nodes that don't have any properties
+        boolean changes = true;
+        while (changes) {
+            changes = false;
+            StmtIterator stmtIt = metadata.listStatements();
+            List remList = new ArrayList();
+            while (stmtIt.hasNext()) {
+                Statement s = stmtIt.nextStatement();
+                if (s.getObject().isAnon()
+                        && !((Resource) s.getObject().as(Resource.class)).listProperties().hasNext()) {
+                    remList.add(s);
+                    changes = true;
+                }
+            }
+            metadata.remove(remList);
+        }
+
+        if (document != null) {
+            document.add(metadata);
+        }
+
+        return currentDocRepr;
+    }
+
+    private RDFNode parsePlaceholder(RDFNode phRes, MappedResource describedResource, ServletContext context) {
+        String phURI = phRes.asNode().getURI();
+        // get package name and placeholder name from placeholder URI
+        phURI = phURI.replace(metadataPlaceholderURIPrefix, "");
+        String phPackage = phURI.substring(0, phURI.indexOf(":") + 1);
+        String phName = phURI.replace(phPackage, "");
+        phPackage = phPackage.replace(":", "");
+
+        if (phPackage.equals("runtime")) {
+            // <about:metadata:runtime:query> - the SPARQL Query used to get the RDF Graph
+            if (phName.equals("query")) {
+                RemoteSPARQLDataSource ds = (RemoteSPARQLDataSource) describedResource.getDataset().getDataSource();
+                return model.createTypedLiteral(ds.getPreviousDescribeQuery());
+            }
+            // <about:metadata:runtime:time> - the current time
+            if (phName.equals("time")) {
+                return model.createTypedLiteral(currentTime);
+            }
+            // <about:metadata:runtime:graph> - URI of the graph
+            if (phName.equals("graph")) {
+                // Replaced the commented line by the following one because the
+                // RDF graph we want to talk about is a specific representation
+                // of the data identified by the getDataURL() URI.
+                //                                       Olaf, May 28, 2010
+                // return model.createResource(describedResource.getDataURL());
+                return currentDocRepr;
+            }
+            // <about:metadata:runtime:data> - URI of the data
+            if (phName.equals("data")) {
+                return model.createResource(describedResource.getDataURL());
+            }
+            // <about:metadata:runtime:resource> - URI of the resource
+            if (phName.equals("resource")) {
+                return model.createResource(describedResource.getWebURI());
+            }
+        }
+
+        // <about:metadata:config:*> - The configuration parameters
+        if (phPackage.equals("config")) {
+            // look for requested property in the dataset config
+            Property p = model.createProperty(CONF.NS + phName);
+            if (dsConfig.hasProperty(p)) {
+                return dsConfig.getProperty(p).getObject();
+            }
+
+            // find pointer to the global configuration set...
+            StmtIterator it = dsConfig.getModel().listStatements(null, CONF.dataset, dsConfig);
+            Statement ptrStmt = it.nextStatement();
+            if (ptrStmt == null) {
+                return null;
+            }
+
+            // look in global config if nothing found so far
+            Resource globalConfig = ptrStmt.getSubject();
+            if (globalConfig.hasProperty(p)) {
+                return globalConfig.getProperty(p).getObject();
+            }
+        }
+
+        // <about:metadata:metadata:*> - The metadata provided by users
+        if (phPackage.equals("metadata")) {
+            // look for requested property in the dataset config
+            Property p = model.createProperty(META.NS + phName);
+            if (dsConfig.hasProperty(p)) {
+                return dsConfig.getProperty(p).getObject();
+            }
+
+            // find pointer to the global configuration set...
+            StmtIterator it = dsConfig.getModel().listStatements(null, CONF.dataset, dsConfig);
+            Statement ptrStmt = it.nextStatement();
+            if (ptrStmt == null) {
+                return null;
+            }
+
+            // look in global config if nothing found so far
+            Resource globalConfig = ptrStmt.getSubject();
+            if (globalConfig.hasProperty(p)) {
+                return globalConfig.getProperty(p).getObject();
+            }
+        }
+
+        return model.createResource(new AnonId(String.valueOf(phRes.hashCode())));
+    }
+
+    private boolean getBooleanConfigValue(Property property, boolean defaultValue) {
+        if (!dsConfig.hasProperty(property)) {
+            return defaultValue;
+        }
+        Literal value = dsConfig.getProperty(property).getLiteral();
+        if (XSD.xboolean.equals(value.getDatatype())) {
+            return value.getBoolean();
+        }
+        return "true".equals(value.getString());
+    }
 
     private int getIntConfigValue(Property property, int defaultValue) {
         if (!dsConfig.hasProperty(property)) {
@@ -463,45 +485,44 @@ public class Dataset {
         }
     }
 
-	private String fixUnescapedCharacters(String uri) {
-		if (fixUnescapeCharacters.length == 0) {
-			return uri;
-		}
-		StringBuffer encoded = new StringBuffer(uri.length() + 4);
-		for (int charIndex = 0; charIndex < uri.length(); charIndex++) {
-			boolean encodeThis = false;
-			if ((int) uri.charAt(charIndex) > 127) {
-				encodeThis = true;
-			}
-			for (int i = 0; i < fixUnescapeCharacters.length; i++) {
-				if (uri.charAt(charIndex) == fixUnescapeCharacters[i]) {
-					encodeThis = true;
-					break;
-				}
-			}
-			if (encodeThis) {
-				encoded.append('%');
-				int b = (int) uri.charAt(charIndex);
-				encoded.append(Integer.toString(b, 16).toUpperCase());
-			} else {
-				encoded.append(uri.charAt(charIndex));
-			}
-		}
-		return encoded.toString();
-	}
-
-	private String escapeURIDelimiters(String uri) {
-            if(escapeURIDelimiters) {
-		return uri.replaceAll("#", "%23").replaceAll("\\?", "%3F");
-            }    
-            else {
-                return uri;
+    private String fixUnescapedCharacters(String uri) {
+        if (fixUnescapeCharacters.length == 0) {
+            return uri;
+        }
+        StringBuffer encoded = new StringBuffer(uri.length() + 4);
+        for (int charIndex = 0; charIndex < uri.length(); charIndex++) {
+            boolean encodeThis = false;
+            if ((int) uri.charAt(charIndex) > 127) {
+                encodeThis = true;
             }
-	}
-	
-	private String unescapeURIDelimiters(String uri) {
-		return uri.replaceAll("%23", "#").replaceAll("%3F", "?");
-	}
+            for (int i = 0; i < fixUnescapeCharacters.length; i++) {
+                if (uri.charAt(charIndex) == fixUnescapeCharacters[i]) {
+                    encodeThis = true;
+                    break;
+                }
+            }
+            if (encodeThis) {
+                encoded.append('%');
+                int b = (int) uri.charAt(charIndex);
+                encoded.append(Integer.toString(b, 16).toUpperCase());
+            } else {
+                encoded.append(uri.charAt(charIndex));
+            }
+        }
+        return encoded.toString();
+    }
+
+    private String escapeURIDelimiters(String uri) {
+        if (escapeURIDelimiters) {
+            return uri.replaceAll("#", "%23").replaceAll("\\?", "%3F");
+        } else {
+            return uri;
+        }
+    }
+
+    private String unescapeURIDelimiters(String uri) {
+        return uri.replaceAll("%23", "#").replaceAll("%3F", "?");
+    }
 
     public List getSparqlMappings() {
         return sparqlMappings;
@@ -542,6 +563,7 @@ public class Dataset {
         }
         return uri;
     }
+
     public String getWebDataResource(String uri) {
         log.fine("Detecting web data resource for URI: " + uri);
         Iterator it = getSparqlMappings().iterator();
@@ -583,27 +605,21 @@ public class Dataset {
     }
 
     /**
-     * @return the unicorn
-     */
-    public boolean isUnicorn() {
-        return unicorn;
-    }
-
-    /**
-     * @param unicorn the unicorn to set
-     */
-    public void setUnicorn(boolean unicorn) {
-        this.unicorn = unicorn;
-    }
-
-    /**
      * @return the externalLinkProperty
      */
-    public String getExternalLinkProperty() {
-        return externalLinkProperty;
+    public List<String> getExternalLinkProperties() {     
+        return externalLinkProperties;
+    }
+
+    /**
+     * @return the orderProperty
+     */
+    public String getOrderProperty() {
+        return orderProperty;
     }
 
     public class SparqlMapping {
+
         private Pattern uriPattern;
         private String sparqlQuery;
         private List publishResources = new ArrayList();
@@ -611,6 +627,7 @@ public class Dataset {
         public String getPrimaryResource(String uri) {
             return uriPattern.matcher(uri).replaceAll(primaryResource);
         }
+
         public String getWebDataResource(String uri) {
             return uriPattern.matcher(uri).replaceAll(webDataResource);
         }
@@ -621,7 +638,7 @@ public class Dataset {
             this.sparqlQuery = mapping.getProperty(CONF.sparqlQuery).getString();
             this.uriPattern = Pattern.compile(mapping.getProperty(CONF.uriPattern).getString());
             this.primaryResource = mapping.getProperty(CONF.primaryResource).getString();
-            if (mapping.getProperty(CONF.webDataResource)!=null) {
+            if (mapping.getProperty(CONF.webDataResource) != null) {
                 this.webDataResource = mapping.getProperty(CONF.webDataResource).getString();
             }
             StmtIterator it = mapping.listProperties(CONF.publishResources);

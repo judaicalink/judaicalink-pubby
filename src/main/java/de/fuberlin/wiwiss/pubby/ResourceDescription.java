@@ -67,10 +67,17 @@ public class ResourceDescription {
 
     public String getLabel() {
         Collection candidates = getValuesFromMultipleProperties(config.getLabelProperties());
-        String label = getBestLanguageMatch(
-                candidates, config.getDefaultLanguage());
+        String label = getBestLanguageMatch(candidates, config.getDefaultLanguage());
         if (label == null) {
-            return resource.getLocalName();
+            String name = "";
+            if (resource.getURI().contains("#")) {
+                name = resource.getURI().split("#")[1];
+            } else {
+                name = resource.getURI().substring(resource.getURI().lastIndexOf("/") + 1);
+            }
+            name = name.replaceAll(",", " ");
+            name = name.replaceAll("_", " ");
+            return name;
         }
         return label;
     }
@@ -179,8 +186,7 @@ public class ResourceDescription {
                 continue;
             }
             Literal literal = (Literal) candidate.as(Literal.class);
-            if (lang == null
-                    || lang.equals(literal.getLanguage())) {
+            if (lang == null || lang.equals(literal.getLanguage())) {
                 return literal.getString();
             }
             aLiteral = literal.getString();
@@ -190,8 +196,8 @@ public class ResourceDescription {
 
     /**
      * Get the origin(s) of a triple. If a triple is contained in more than one
-     * graph, return all of them. If a triple is contained in the graphs
-     * only refereing to different versions, only return the newest version.
+     * graph, return all of them. If a triple is contained in the graphs only
+     * refereing to different versions, only return the newest version.
      *
      * @param property
      * @param value
@@ -204,7 +210,7 @@ public class ResourceDescription {
         if (mappedResource.getDataset().isShowOrigin()) {
             //query the triple and return all origins
             if (value.getNode().isLiteral()) {
-                origins = getProv(mappedResource.getDatasetURI(), value.getNode().getLiteralLexicalForm(), property.isInverse, mappedResource.getDataset().getEndpoint());
+                origins = getProv(mappedResource.getDatasetURI(), value.getNode().getLiteralLexicalForm(), mappedResource.getDataset().getOrderProperty(), property.isInverse, mappedResource.getDataset().getEndpoint());
             } else {
                 String uri = "";
                 if (value.getNode().isURI()) {
@@ -219,7 +225,7 @@ public class ResourceDescription {
                     log.fine("URI " + uri);
 
                 }
-                origins = getProv(mappedResource.getDatasetURI(), uri, property.isInverse, mappedResource.getDataset().getEndpoint());
+                origins = getProv(mappedResource.getDatasetURI(), uri, mappedResource.getDataset().getOrderProperty(), property.isInverse, mappedResource.getDataset().getEndpoint());
             }
         }
         return origins;
@@ -227,14 +233,14 @@ public class ResourceDescription {
 
     /**
      * Function to query the origin.
-     * 
+     *
      * @param subject
      * @param object
      * @param inverse
      * @param endpoint
-     * @return 
+     * @return
      */
-    private List<String> getProv(String subject, String object, boolean inverse, String endpoint) {
+    private List<String> getProv(String subject, String object, String orderProperty, boolean inverse, String endpoint) {
 
         //if the property is inverse, switch object and subject
         if (inverse) {
@@ -244,21 +250,31 @@ public class ResourceDescription {
         }
 
         List<String> uris = new ArrayList<String>();
-
         String query = "";
-        if (object.contains("http://")) {
-            query = "select ?g ?date WHERE {      "
-                    + "graph ?g {<" + subject + "> ?p <" + object + ">."
-                    + "   ?g <http://purl.org/dc/elements/1.1/date> ?date .  "
-                    + "}               } ORDER BY DESC(?date) ";
-        } else {
-            query = "select ?g ?date WHERE {      "
-                    + "graph ?g {<" + subject + "> ?p ?o."
-                    + "   ?g <http://purl.org/dc/elements/1.1/date> ?date .  "
-                    + "filter (STR(?o)=\"" + object + "\")"
-                    + "}               } ORDER BY DESC(?date) ";
-        }
 
+        if (orderProperty.isEmpty()) {
+            if (object.contains("http://")) {
+                query = "select ?g ?date WHERE {      "
+                        + "graph ?g {<" + subject + "> ?p <" + object + ">  } }.";
+            } else {
+                query = "select ?g ?date WHERE {      "
+                        + "graph ?g {<" + subject + "> ?p ?o."
+                        + "filter (STR(?o)=\"" + object + "\") } }";
+            }
+        } else {
+            if (object.contains("http://")) {
+                query = "select ?g ?date WHERE {      "
+                        + "graph ?g {<" + subject + "> ?p <" + object + ">."
+                        + "   ?g <" + orderProperty + "> ?date .  "
+                        + "}               } ORDER BY DESC(?date) ";
+            } else {
+                query = "select ?g ?date WHERE {      "
+                        + "graph ?g {<" + subject + "> ?p ?o."
+                        + "   ?g <" + orderProperty + "> ?date .  "
+                        + "filter (STR(?o)=\"" + object + "\")"
+                        + "}               } ORDER BY DESC(?date) ";
+            }
+        }
         QueryEngineHTTP queryEngine = new QueryEngineHTTP(endpoint, query);
 
         ResultSet rs = queryEngine.execSelect();
@@ -280,10 +296,6 @@ public class ResourceDescription {
             }
         }
         return uris;
-    }
-
-    public boolean displayUnicorn() {
-        return mappedResource.getDataset().isUnicorn();
     }
 
     public class ResourceProperty implements Comparable {
@@ -458,7 +470,7 @@ public class ResourceDescription {
         }
 
         /**
-         * Checks whether an link (determined by the getExternalLinkProperty),
+         * Checks whether a link (determined by the getExternalLinkProperty),
          * e.g. sameAs, is available for the resource. If this is the case, a
          * "plus" buttonrefering to the overview page of the external resource
          * will be displayed. This page provides information about other
@@ -467,8 +479,7 @@ public class ResourceDescription {
          * @return
          */
         public String linksToExternalSource() {
-            //TODO: can we also do it with "interal" links?
-            if (predicate.getURI().equals(mappedResource.getDatasetConfig().getExternalLinkProperty()) && !this.getLabel().contains(mappedResource.getServerConfig().getWebApplicationBaseURI())) {
+            if (mappedResource.getDatasetConfig().getExternalLinkProperties().contains(predicate.getURI())) {
                 String uri = this.getNode().getURI();
                 String resultingURI = mappedResource.getServerConfig().getWebApplicationBaseURI()
                         + mappedResource.getDatasetConfig().getWebResourcePrefix() + "" + mappedResource.getDatasetConfig().getExternalLinkPrefix() + "" + uri.replace("http://", "");
