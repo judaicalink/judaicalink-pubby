@@ -21,7 +21,7 @@
         </div>
 
         <div class="breadcrumbs">
-            URI of this <a href="http://www.openarchives.org/ore/1.0/primer#Nutshell">Resource Map</a>: <a href="$uri">$uri</a>
+            URI of this data resource: <a href="$rdf_link">$rdf_link</a>
         </div>
         #foreach ($resource in $resources)
         <div class="resource">

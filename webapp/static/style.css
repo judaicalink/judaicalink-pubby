@@ -45,7 +45,7 @@ img {
 #logo {
     float:right;
     width:20%;
-
+    text-align: right;
 }
 .header {
     height: 100px;
