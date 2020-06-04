@@ -1,18 +1,20 @@
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-  <head>
-    <title>$title | $project_name</title>
-#if ($rdf_link)
-    <link rel="alternate" type="application/rdf+xml" href="$rdf_link" title="RDF" />
-#end
-    <link rel="stylesheet" type="text/css" href="${server_base}static/style.css" />
-    <script type="text/javascript" src="${server_base}static/script.js"></script>
-    <script type="text/javascript" src="${server_base}static/yoxview/yoxview-init.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function(){
-             $(".image").yoxview();
-        });
-    </script>
+<header class="row">
+    <div class="col-md-12">
 
-  </head>
-  <body onLoad="init();">
+        <button type="button" id="sidebarCollapse" class="btn btn-secondary">
+                        <i class="fas fa-bars"></i>
+        </button>
+
+
+        <div class="header-logos">
+       <a href="/"><img src="${server_base}static/yoxview/images/transp_judaica_labs.png" alt="JudaicaLink labs logo" class="logo"/></a>
+
+
+    <a href="https://www.ub.uni-frankfurt.de/judaica3/home.html" target="_blank"><img src="${server_base}static/yoxview/images/fid-logo.jpg" alt="FID logo" class="logofid"/></a>
+        </div>
+
+    </div>
+    <a href="https://github.com/wisslab/judaicalink-portal" target="_blank"><img id="forkmeongithub" src="${server_base}static/yoxview/images/forkmeongithub-blue.png" alt="Fork me on GitHub"></a>
+</header>
+
 

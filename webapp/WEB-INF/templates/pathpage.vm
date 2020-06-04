@@ -1,4 +1,5 @@
 #parse("header.vm")
+#parse("navbar.vm")
 
 #foreach ($resource in $resources)
 #if ($resource.Label)

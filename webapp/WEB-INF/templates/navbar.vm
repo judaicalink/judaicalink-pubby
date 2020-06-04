@@ -1,0 +1,87 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>$title | $project_name</title>
+#if ($rdf_link)
+    <link rel="alternate" type="application/rdf+xml" href="$rdf_link" title="RDF" />
+#end
+    <link rel="stylesheet" type="text/css" href="${server_base}static/style.css"/>
+
+    <!-- Bootstrap CSS -->
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <!-- Scrollbar Custom CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
+
+   <script type="text/javascript">
+        $(document).ready(function(){
+             $(".image").yoxview();
+        });
+    </script>
+
+    <!-- JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script src="https://use.fontawesome.com/releases/v5.13.0/js/all.js" data-auto-replace-svg="nest"></script>
+    <script type="text/javascript" src="${server_base}static/script.js"></script>
+    <script type="text/javascript" src="${server_base}static/yoxview/yoxview-init.js"></script>
+  </head>
+  <body onLoad="init();">
+
+
+
+<div class="wrapper">
+
+
+      <!-- Page Navigation -->
+
+      <nav id="sidebar">
+            <div class="sidebar-header">
+
+            </div>
+
+            <ul class="list-unstyled components">
+                <li class="active">
+                    <a href="/"><i class="fas fa-home"></i>  Home</a>
+                </li>
+                <li>
+                    <a href="{% url 'search:search_index'%}"><i class="fas fa-search"></i>  Search</a>
+                </li>
+                <li>
+                    <a href="{% url 'search_index' %}"><i class="fas fa-search-plus"></i>  CM Search</a>
+                </li>
+                <li>
+                    <a href="http://www.judaicalink.org/datasets/"><i class="fas fa-table"></i>  Datasets</a>
+                </li>
+                <li>
+                <a href="/news"><i class="fas fa-comment"></i>  News</a>
+                </li>
+                <li>
+                    <a href="https://www.ub.uni-frankfurt.de/judaica3/home.html" target="_blank"><i class="fas fa-hanukiah"></i>  FID Jewish Studies</a>
+                </li>
+
+            </ul>
+
+            <ul class="list-unstyled CTAs">
+                <li>
+                    <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="fas fa-eye"></i>  Background</a>
+                    <ul class="collapse list-unstyled" id="pageSubmenu">
+                        <li>
+                            <a href="/faq">FAQ</a>
+                        </li>
+                        <li>
+                            <a href="/about-us">About</a>
+                        </li>
+                        <li>
+                            <a href="/legal">Disclaimer</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+
+      <!-- Page Navigation -->
+
+

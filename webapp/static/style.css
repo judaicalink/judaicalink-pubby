@@ -1,38 +1,5 @@
+/*
 
-* {
-    margin: 0;
-    padding: 0;
-}
-body {
-    line-height: 1.5em;
-    font-family: sans-serif;
-    font-size: 80%;
-}
-a {
-    color: #3B6EBF;
-    text-decoration: none;
-}
-a:hover {
-    text-decoration: underline;
-}
-
-img {
-    border-style: none;
-}
-
-#wrap {
-    margin: 20px auto;
-    width: 90%;
-    padding-bottom: 30px;
-    box-shadow: 3px 3px 5px 6px #ccc;
-    border-radius: 20px 20px 20px 20px;
-}
-#top {
-    height: 30px;
-}
-#content {
-    padding: 0 40px;
-}
 #bottom {
     padding: 0 20px;
     height: 30px;
@@ -42,11 +9,7 @@ img {
     vertical-align: middle;
     margin-right: 10px;
 }
-#logo {
-    float:right;
-    width:20%;
-    text-align: right;
-}
+
 .header {
     height: 100px;
     float:left;
@@ -72,20 +35,6 @@ img {
 }
 .header p {
     font-style: italic;
-}
-.breadcrumbs {
-    background: none repeat scroll 0 0 #F6F9FB;
-    border-bottom: 1px solid #E1E1E1;
-    padding: 5px;
-    clear:both;
-}
-.resource {
-    background-color: #F0F0F0;
-    border-color: #999999;
-    border-radius: 10px 10px 10px 10px;
-    border-style: inset;
-    border-width: 2px;
-    margin: 20px 3px 22px;
 }
 
 .middle {
@@ -127,24 +76,20 @@ img {
     font-size: 14px;
     margin-top: 15px;
 }
-.clear {
-    clear: both;
-    display: block;
-    height: 1px;
-    overflow: hidden;
-    width: 100%;
-}
+
+/*
 #footer {
     color: #666666;
     text-align: center;
 }
+*/
 
+/*only in data*/
 table.description {
     border-collapse: collapse;
     clear: left;
     font-size: 100%;
     margin: 0 0 1em;
-
 }
 table.description th {
     background: none repeat scroll 0 0 white;
@@ -184,3 +129,354 @@ table.description .even td {
 a.expander {
     text-decoration: none;
 }
+.breadcrumbs {
+    padding: 5px;
+    clear:both;
+}
+.resource {
+    background-color: #F0F0F0#;
+    margin: 20px 3px 22px;
+}
+
+#JudaicaLogo{
+     float:right;
+     width:20%;
+     text-align: right;
+}
+
+.middle {
+    float: left;
+    margin: 0 10px;
+    padding: 1%;
+    text-align: justify;
+    width: 69%;
+}
+
+#bottom {
+    padding: 0 20px;
+    height: 30px;
+    clear:both;
+}
+
+.header {
+    height: 100px;
+    float:left;
+    width:90%;
+}
+
+
+
+/*New css from labs*/
+
+body,html {
+   padding:0;
+   margin:0;
+   top:0;
+   left:0;
+   width: 100%;
+   height: 100%;
+   font-size: 16px;
+}
+h1, h2, h3, h4, a{
+  color: #004284;
+}
+
+/*-------------------------------------------------------*/
+
+
+a:hover {
+    color: lighgrey;
+}
+
+.wrapper {
+    display: flex;
+    width: 100%;
+}
+
+
+#sidebar a, #sidebar a:hover, #sidebar a:focus {
+    color: inherit;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+button {
+   position: fixed;
+   top: -5px;
+   margin-left: -63px;
+   height: 35px;
+   width: 35px;
+   opacity: 0.6;
+}
+#sidebar {
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 999;
+    background: #d8ffbf;   /*hier*/
+    color: black; /*Schriftfarbe komplett*/
+    transition: all 0.3s;
+}
+#sidebar.active {
+    margin-left: -250px;
+}
+
+#sidebar a[data-toggle="collapse"] {
+    position: relative;
+}
+
+.dropdown-toggle::after {
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+}
+#sidebar .sidebar-header {
+    padding: 20px;
+    background-color: #d8ffbf; /*hier*/
+}
+
+#sidebar ul.components {
+    padding: 20px 0;
+    border-bottom: 1px solid #fff;
+}
+
+#sidebar ul p {
+    padding: 10px;
+}
+
+#sidebar ul li a {
+    padding: 10px;
+    font-size: 1.1em;
+    display: block;
+}
+#sidebar ul li a:hover {
+    background: rgba(169,255,115,0.5);  /*Dunkelblau in Hex #004284 0,128,0*/
+}
+
+#sidebar ul li.active {
+    color: #fff;
+    background: #004284; /*Home*/
+}
+#sidebar ul ul a {  /*das sind die aufklapbaren*/
+    font-size: 0.9em !important;
+    padding-left: 30px !important;
+    background: #004284;            /*Das ist UNSER Dunkelblau #004284*/
+    color: #fff;
+}
+
+#content {
+    width: calc(100% - 250px);
+    padding: 40px;
+    min-height: 100vh;
+    transition: all 0.3s;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+#content.active {
+    width: 100%;
+}
+
+.row {
+    padding: 10px;
+    }
+
+.col-md-4 {
+    border-left: solid 1px lightgrey;
+    }
+
+.paging_button_active {
+    background-color: #004284;
+    border: 1px solid black;
+    color: black;
+    padding: 10px 10px;
+    text-align: center;
+}
+
+.paging_button_inactive {
+    background-color: white;
+    border: 1px solid black;
+    color: black;
+    padding: 10px 10px;
+    text-align: center;
+}
+
+#hdmlogo {
+    padding: 5px;
+    width: 75px;
+    height: auto;
+    margin-right: 10px;
+}
+
+#dmelogo {
+    width: 110px;
+    height: auto;
+    margin-top: 10px;
+    margin-left: 5px;
+}
+#jcelogo {
+    padding: 5px;
+    width: 120px;
+    height: auto;
+}
+#ubflogo {
+    padding: 5px;
+    width: 95px;
+    height: auto;
+    margin-top: -5px;
+}
+#jeulogo {
+    padding: 5px;
+    width: 130px;
+    height: auto;
+    margin-top: -5px;
+}
+#euprologo {
+    padding: 5px;
+    width: 126px;
+    height: auto;
+    margin-top: 3px;
+    }
+
+
+.header-logos{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/*JudaicaLink Logo*/
+.logo {
+  width: 200px;
+}
+/*JudaicaLink Logo*/
+
+
+/*FID Logo oben rechts*/
+.logofid {
+  width: 220px;
+  }
+/*FID Logo oben rechts*/
+
+
+.footer-logos {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+
+}
+
+.footer-content{
+    margin-top: 30px;
+    font-size: 17px;
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+
+}
+.footer-content a{
+    color: black;
+}
+.footer-content a:hover{
+    text-decoration:underline;
+}
+
+
+
+
+.container-fluid {
+margin-top: -30px;}
+
+
+#forkmeongithub {
+height: 120px;
+position: absolute;
+top: 0;
+right: 0;
+border: 0;
+transition: .4s;
+}
+#forkmeongithub:hover {
+opacity: 0.8;
+height: 130px;
+}
+
+
+/* ---------------------------------------------------
+    MEDIAQUERIES
+----------------------------------------------------- */
+/*@media (max-width: 1000px) wenn kleiner als 1000px oder =1000px dann...*/
+@media (max-width: 768px) {
+    .logo {
+        width: 170px;
+    }
+    .logofid {
+        width: 180px;
+    }
+
+    #sidebar {
+        margin-left: -100%; /*davor -250px*/
+        width: 100%;        /*250px*/
+    }
+
+    #sidebar.active {
+        margin-left: 0px;
+    }
+    button {
+        z-index: 1000;
+        top: 1px;
+        margin-left: -34px;     /*Button außen*/
+        height: 35px;
+        width: 35px;
+        opacity: 0.8;
+    }
+
+    #content {
+        width: 100%;
+    }
+    #content.active {
+        width: 50px;            /*Button innen*/
+    }
+    #sidebarCollapse span {
+        display: none;
+    }
+    body,html {
+        font-size: 14px;
+        }
+
+    #forkmeongithub {
+    height: 0px;
+    margin-top: -20px;
+    }
+    #forkmeongithub:hover{
+    opacity: 1;
+    height: 100px;
+    }
+    pre {
+        font-size: 13px;
+    }
+    #content {
+    padding: 10px;
+    margin-top: 20px;
+    }
+
+}
+
+/*-------------------------------------------------------*/
+
+
+
+
+
+
+
+
