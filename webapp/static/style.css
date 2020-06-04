@@ -215,7 +215,7 @@ button {
     left: 0;
     height: 100vh;
     z-index: 999;
-    background: #d8ffbf;   /*hier*/
+    background: #FF7A70;   /*hier*/
     color: black; /*Schriftfarbe komplett*/
     transition: all 0.3s;
 }
@@ -236,7 +236,7 @@ button {
 }
 #sidebar .sidebar-header {
     padding: 20px;
-    background-color: #d8ffbf; /*hier*/
+    background-color: #FF7A70; /*hier*/
 }
 
 #sidebar ul.components {
@@ -254,7 +254,7 @@ button {
     display: block;
 }
 #sidebar ul li a:hover {
-    background: rgba(169,255,115,0.5);  /*Dunkelblau in Hex #004284 0,128,0*/
+    background: rgb(209,99,92);  /*Dunkelblau in Hex #004284 0,128,0*/
 }
 
 #sidebar ul li.active {
