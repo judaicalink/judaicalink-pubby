@@ -191,6 +191,7 @@ a:hover {
 .wrapper {
     display: flex;
     width: 100%;
+    color:grey;
 }
 
 
@@ -216,7 +217,7 @@ button {
     height: 100vh;
     z-index: 999;
     background: #FF7A70;   /*hier*/
-    color: black; /*Schriftfarbe komplett*/
+    color: grey; /*Schriftfarbe komplett*/
     transition: all 0.3s;
 }
 #sidebar.active {
@@ -241,7 +242,7 @@ button {
 
 #sidebar ul.components {
     padding: 20px 0;
-    border-bottom: 1px solid #fff;
+    border-bottom: 1px solid grey;
 }
 
 #sidebar ul p {
@@ -258,14 +259,12 @@ button {
 }
 
 #sidebar ul li.active {
-    color: #fff;
-    background: #004284; /*Home*/
+    /*background: #004284; /*Home*/
 }
 #sidebar ul ul a {  /*das sind die aufklapbaren*/
     font-size: 0.9em !important;
     padding-left: 30px !important;
-    background: #004284;            /*Das ist UNSER Dunkelblau #004284*/
-    color: #fff;
+    background: #FF7A70;
 }
 
 #content {
@@ -381,15 +380,17 @@ button {
     flex-wrap: wrap;
     align-content: center;
     align-items: center;
+    color:grey;
 
 }
 .footer-content a{
-    color: black;
+    color: grey;
 }
 .footer-content a:hover{
     text-decoration:underline;
 }
-
+.footer-content pre{
+    color:grey;}
 
 
 
