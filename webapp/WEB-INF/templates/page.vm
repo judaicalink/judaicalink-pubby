@@ -59,13 +59,13 @@
                               <a href="$rdf_link?output=xml">As RDF/XML</a>
                         #set ($has_text = true)
                         #end
-                        #if ($disco_link)
+                       <!-- #if ($disco_link)
                         #if ($has_text)
                               |
                         #end
                               <a href="$disco_link">Browse in Disco</a>
                         #set ($has_text = true)
-                        #end
+                        #end-->
                         #if ($graphite_link)
                                 #if ($has_text)
                                       |
@@ -93,10 +93,9 @@
                             Design based on <a href="http://www.oswd.org/design/preview/id/3681">Blue Freedom</a> by <a href="http://www.minimalistic-design.com/">Minimalistic Design</a>.<br />
                             Powered by <a href="http://wifo5-03.informatik.uni-mannheim.de/pubby/">Pubby</a>.
                         </div>-->
-#                </div>
+                </div>
            </div>
            #parse("footer.vm")
         </div>
     </div>
 
-    <script type="text/javascript" src="${server_base}static/Design.js"></script>
