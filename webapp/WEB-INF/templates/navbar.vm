@@ -17,10 +17,6 @@
   <body onLoad="init();">
 
 
-
-<div class="wrapper">
-
-
       <!-- Page Navigation -->
 
       <nav id="sidebar">
