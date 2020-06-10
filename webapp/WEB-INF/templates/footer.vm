@@ -15,11 +15,10 @@
             <pre><a href="/faq">FAQ</a> | <a href="/about-us">About</a> | <a href="/legal">Disclaimer</a> | <a href="/legal">Privacy Policy</a></pre>
         </div>
          <div id="footer">
-         <pre>
-             Best viewed with a <a href="http://css3test.com/">CSS3</a> capable browser.<br/>
-             Design based on <a href="http://www.oswd.org/design/preview/id/3681">Blue Freedom</a> by <a href="http://www.minimalistic-design.com/">Minimalistic Design</a>.<br />
+         <p>
+             Best viewed with a <a href="http://css3test.com/">CSS3</a> capable browser. Design based on <a href="http://www.oswd.org/design/preview/id/3681">Blue Freedom</a> by <a href="http://www.minimalistic-design.com/">Minimalistic Design</a>.
              Powered by <a href="http://wifo5-03.informatik.uni-mannheim.de/pubby/">Pubby</a>.
-             </pre>
+             </p>
          </div>
     </div>
    </div>
