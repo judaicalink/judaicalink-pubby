@@ -22,32 +22,31 @@
                     </div>
                  </div>
 
-                        #foreach ($resource in $resources)
+                 #foreach ($resource in $resources)
                         <div class="resource">
                             <div class="clear"></div>
 
-                                        <h2>$resource.label</h2>
-                                        <p>URI: <a href="$resource.URI">$resource.URI</a></p>
-                                        #if (!$resource.properties.isEmpty())
-                                        #parse("proptable.vm")
-                                        #else
-                                            <p>No further information is available.</p>
-                                        #end
+                            <h2>$resource.label</h2>
+                            <p>URI: <a href="$resource.URI">$resource.URI</a></p>
+                            #if (!$resource.properties.isEmpty())
+                                #parse("proptable.vm")
+                            #else
+                                <p>No further information is available.</p>
+                            #end
                             <div class="right">
-                            #if ($resource.imageURL)
-                                <div class="image">
-                                                <a href="$resource.imageURL"><img src="$resource.thumbnailURL" alt="Depiction of $resource.label" title="Depiction of $resource.label" /></a><br />
-                                </div>
+                                #if ($resource.imageURL)
+                                    <div class="image">
+                                        <a href="$resource.imageURL"><img src="$resource.thumbnailURL" alt="Depiction of $resource.label" title="Depiction of $resource.label" /></a><br />
+                                    </div>
                                 #end
                             </div>
-
                             <div class="clear"></div>
-                            </div>
-                            #end
-                            <div class="clear"></div>
-                    </div>
+                        </div>
+                        #end
+                        <div class="clear"></div>
+                 </div>
                  <div class="row">
-                    <div class="col-md-12 col-lg-9 col-xl-8">
+                    <div class="col-md-12">
                             <div id="bottom">
                                 #set ($has_text = false)
 
