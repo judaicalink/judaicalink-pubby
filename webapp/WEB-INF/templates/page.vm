@@ -3,99 +3,107 @@
                       $sparql_query
                       -->
                 #end
-    <div class="wrapper">
         #parse("navbar.vm")
+        <div class="wrapper">
         <div id="content">
            <div class="container-fluid">
                 #parse("header.vm")
-                <div class="header">
-                    <h1 id="title">$title</h1>
-                   <!--     #if ($comment)
-                             <p>$comment</p>
-                        #end  -->
-                   <div id="Judaicalogo">
-                        <a href="$project_link" title="$project_name"><img src="${server_base}static/logo.png" alt="[$project_name Logo]" /></a>
-                   </div>
-                </div>
-                <div class="breadcrumbs">
-                        URI of this data resource: <a href="$rdf_link">$rdf_link</a>
-                </div>
-                #foreach ($resource in $resources)
-                <div class="resource">
-                    <div class="clear"></div>
-                    <div class="middle">
-                                <h2>$resource.label</h2>
-                                <p>URI: <a href="$resource.URI">$resource.URI</a></p>
-                                #if (!$resource.properties.isEmpty())
-                                #parse("proptable.vm")
-                                #else
-                                    <p>No further information is available.</p>
-                                #end
-                    </div>
-
-                    <div class="right">
-                    #if ($resource.imageURL)
-                        <div class="image">
-                                        <a href="$resource.imageURL"><img src="$resource.thumbnailURL" alt="Depiction of $resource.label" title="Depiction of $resource.label" /></a><br />
+                 <div class="row">
+                    <div class="col-md-12">
+                        <div class="header">
+                            <h1 id="title">$title</h1>
+                           <!--     #if ($comment)
+                                     <p>$comment</p>
+                                #end  -->
+                           <div id="Judaicalogo">
+                                <a href="$project_link" title="$project_name"><img src="${server_base}static/logo.png" alt="[$project_name Logo]" /></a>
+                           </div>
                         </div>
-                        #end
+                        <div class="breadcrumbs">
+                                URI of this data resource: <a href="$rdf_link">$rdf_link</a>
+                        </div>
                     </div>
+                 </div>
 
-                    <div class="clear"></div>
+                        #foreach ($resource in $resources)
+                        <div class="resource">
+                            <div class="clear"></div>
+
+                                        <h2>$resource.label</h2>
+                                        <p>URI: <a href="$resource.URI">$resource.URI</a></p>
+                                        #if (!$resource.properties.isEmpty())
+                                        #parse("proptable.vm")
+                                        #else
+                                            <p>No further information is available.</p>
+                                        #end
+                            <div class="right">
+                            #if ($resource.imageURL)
+                                <div class="image">
+                                                <a href="$resource.imageURL"><img src="$resource.thumbnailURL" alt="Depiction of $resource.label" title="Depiction of $resource.label" /></a><br />
+                                </div>
+                                #end
+                            </div>
+
+                            <div class="clear"></div>
+                            </div>
+                            #end
+                            <div class="clear"></div>
                     </div>
-                    #end
-                    <div class="clear"></div>
+                 <div class="row">
+                    <div class="col-md-12">
+                            <div id="bottom">
+                                #set ($has_text = false)
 
-                    <div id="bottom">
-                        #set ($has_text = false)
+                                #if ($sparql_endpoint)
+                                      This page shows information obtained from the SPARQL endpoint at <a class="sparql-uri" href="$sparql_endpoint">$sparql_endpoint</a>.<br />
+                                #end
 
-                        #if ($sparql_endpoint)
-                              This page shows information obtained from the SPARQL endpoint at <a class="sparql-uri" href="$sparql_endpoint">$sparql_endpoint</a>.<br />
-                        #end
-
-                        #if ($rdf_link)
-                              <img src="${server_base}static/rdf-icon.gif" />
-                              <a href="$rdf_link?output=ttl">As Turtle</a> |
-                              <a href="$rdf_link?output=xml">As RDF/XML</a>
-                        #set ($has_text = true)
-                        #end
-                       <!-- #if ($disco_link)
-                        #if ($has_text)
-                              |
-                        #end
-                              <a href="$disco_link">Browse in Disco</a>
-                        #set ($has_text = true)
-                        #end-->
-                        #if ($graphite_link)
+                                #if ($rdf_link)
+                                      <img src="${server_base}static/rdf-icon.gif" />
+                                      <a href="$rdf_link?output=ttl">As Turtle</a> |
+                                      <a href="$rdf_link?output=xml">As RDF/XML</a>
+                                #set ($has_text = true)
+                                #end
+                               <!-- #if ($disco_link)
                                 #if ($has_text)
                                       |
                                 #end
-                                      <a href="$graphite_link">Browse in Graphite Browser</a>
+                                      <a href="$disco_link">Browse in Disco</a>
                                 #set ($has_text = true)
-                        #end
-                        #if ($tabulator_link)
-                        #if ($has_text)
-                              |
-                        #end
-                              <a href="$tabulator_link">Browse in Tabulator</a>
-                        #set ($has_text = true)
-                        #end
-                        #if ($openlink_link)
-                        #if ($has_text)
-                              |
-                        #end
-                              <a href="$openlink_link">Browse in OpenLink Browser</a>
-                        #set ($has_text = true)
-                        #end
+                                #end-->
+                                #if ($graphite_link)
+                                        #if ($has_text)
+                                              |
+                                        #end
+                                              <a href="$graphite_link">Browse in Graphite Browser</a>
+                                        #set ($has_text = true)
+                                #end
+                                #if ($tabulator_link)
+                                #if ($has_text)
+                                      |
+                                #end
+                                      <a href="$tabulator_link">Browse in Tabulator</a>
+                                #set ($has_text = true)
+                                #end
+                                #if ($openlink_link)
+                                #if ($has_text)
+                                      |
+                                #end
+                                      <a href="$openlink_link">Browse in OpenLink Browser</a>
+                                #set ($has_text = true)
+                                #end
 
-                        <!--<div id="footer">
-                            Best viewed with a <a href="http://css3test.com/">CSS3</a> capable browser.<br />
-                            Design based on <a href="http://www.oswd.org/design/preview/id/3681">Blue Freedom</a> by <a href="http://www.minimalistic-design.com/">Minimalistic Design</a>.<br />
-                            Powered by <a href="http://wifo5-03.informatik.uni-mannheim.de/pubby/">Pubby</a>.
-                        </div>-->
-                </div>
+                                <!--<div id="footer">
+                                    Best viewed with a <a href="http://css3test.com/">CSS3</a> capable browser.<br />
+                                    Design based on <a href="http://www.oswd.org/design/preview/id/3681">Blue Freedom</a> by <a href="http://www.minimalistic-design.com/">Minimalistic Design</a>.<br />
+                                    Powered by <a href="http://wifo5-03.informatik.uni-mannheim.de/pubby/">Pubby</a>.
+                                </div>-->
+                            </div>
+                        </div>
+                   </div>
+                   #parse("footer.vm")
+                 </div>
            </div>
-           #parse("footer.vm")
         </div>
-    </div>
-
+  </body>
+</html>

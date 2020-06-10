@@ -91,14 +91,10 @@ table.description {
     font-size: 100%;
     margin: 0 0 1em;
     table-layout:fixed;
-    with: 100%;
 }
 table.description th {
     background: none repeat scroll 0 0 white;
     text-align: left;
-}
-table.description tr {
-    word-wrap:break-word;
 }
 
 
@@ -107,7 +103,13 @@ table.description td, table.description th {
     padding: 0.2em 0.4em;
     vertical-align: top;
     word-wrap:break-word;
+    word-break:break-word;
 }
+
+table.description tr{
+    word-wrap:break-word;
+    word-break:break-word;
+    }
 table.description ul {
     margin: 0;
     padding-left: 1em;
@@ -127,6 +129,7 @@ table.description small, .metadata-table a small {
 }
 table.description .property {
     word-wrap:break-word;
+    word-break:break-word;
 }
 table.description .odd td {
     background: none repeat scroll 0 0 #DDDDDD;
@@ -156,8 +159,6 @@ a.expander {
     float: left;
     margin: 0 10px;
     padding: 1%;
-    text-align: justify;
-    width: 69%;
 }
 
 #bottom {
