@@ -150,9 +150,10 @@ a.expander {
 }
 
 #JudaicaLogo{
-     float:right;
+     /*float:right;
      width:20%;
-     text-align: right;
+     text-align: right;*/
+     width:200px;
 }
 
 .middle {
@@ -168,11 +169,18 @@ a.expander {
 }
 
 .header {
-    height: 100px;
-    float:left;
-    width:90%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
-
+.header h1 {
+    padding-left: 0px;
+    padding-top: 15px;
+    padding-bottom: 5px;
+}
+.header p {
+    font-style: italic;
+}
 
 
 /*New css from labs*/
@@ -349,7 +357,12 @@ button {
   width: 220px;
   }
 /*FID Logo oben rechts*/
-
+#footer {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;}
 
 .footer-logos {
     display: flex;
@@ -357,7 +370,6 @@ button {
     flex-wrap: wrap;
     align-content: center;
     align-items: center;
-
 }
 
 .footer-content{

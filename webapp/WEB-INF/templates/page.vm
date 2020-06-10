@@ -11,13 +11,15 @@
                  <div class="row">
                     <div class="col-md-12">
                         <div class="header">
-                            <h1 id="title">$title</h1>
-                           <!--     #if ($comment)
-                                     <p>$comment</p>
-                                #end  -->
+                        <h1 id="title">$title</h1>
+                           #if ($comment)
+                               <p>$comment</p>
+                           #end
                            <div id="Judaicalogo">
                                 <a href="$project_link" title="$project_name"><img src="${server_base}static/logo.png" alt="[$project_name Logo]" /></a>
                            </div>
+
+
                         </div>
                         <div class="breadcrumbs">
                                 URI of this data resource: <a href="$rdf_link">$rdf_link</a>
@@ -57,7 +59,6 @@
                                 #if ($sparql_endpoint)
                                       This page shows information obtained from the SPARQL endpoint at <a class="sparql-uri" href="$sparql_endpoint">$sparql_endpoint</a>.<br />
                                 #end
-
                                 #if ($rdf_link)
                                       <img src="${server_base}static/rdf-icon.gif" />
                                       <a href="$rdf_link?output=ttl">As Turtle</a> |
@@ -92,16 +93,11 @@
                                       <a href="$openlink_link">Browse in OpenLink Browser</a>
                                 #set ($has_text = true)
                                 #end
+                                #parse("footer.vm")
 
-                                <!--<div id="footer">
-                                    Best viewed with a <a href="http://css3test.com/">CSS3</a> capable browser.<br />
-                                    Design based on <a href="http://www.oswd.org/design/preview/id/3681">Blue Freedom</a> by <a href="http://www.minimalistic-design.com/">Minimalistic Design</a>.<br />
-                                    Powered by <a href="http://wifo5-03.informatik.uni-mannheim.de/pubby/">Pubby</a>.
-                                </div>-->
                             </div>
                         </div>
                    </div>
-                   #parse("footer.vm")
                  </div>
            </div>
         </div>
