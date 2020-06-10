@@ -7,14 +7,14 @@
 #if ($rdf_link)
     <link rel="alternate" type="application/rdf+xml" href="$rdf_link" title="RDF" />
 #end
-    <link rel="stylesheet" type="text/css" href="${server_base}static/style.css"/>
-
     <!-- Bootstrap CSS -->
-      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="${server_base}static/style.css"/>
     <!-- Scrollbar Custom CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
   </head>
   <body onLoad="init();">
+<div class="wrapper">
 
 
       <!-- Page Navigation -->
@@ -26,16 +26,16 @@
 
             <ul class="list-unstyled components">
                 <li class="active">
-                    <a href="http://web.judaicalink.org/"><i class="fas fa-home"></i>  Judaicalink Web</a>
+                    <a href="/"><i class="fas fa-home"></i>  Web Home</a>
+                </li>
+                <li>
+                    <a href="/datasets"><i class="fas fa-table"></i>  Datasets</a>
                 </li>
                 <li>
                     <a href="http://labs.judaicalink.org/search/"><i class="fas fa-search"></i>  Labs Search</a>
                 </li>
                 <li>
-                    <a href="http://labs.judaicalink.org/cm_search/"><i class="fas fa-search-plus"></i>  Compact Memory Search</a>
-                </li>
-                <li>
-                    <a href="http://web.judaicalink.org/datasets/"><i class="fas fa-table"></i>  Datasets Overview</a>
+                <a href="/news"><i class="fas fa-comment"></i>  News</a>
                 </li>
                 <li>
                     <a href="https://www.ub.uni-frankfurt.de/judaica3/home.html" target="_blank"><i class="fas fa-hanukiah"></i>  FID Jewish Studies</a>
@@ -48,13 +48,13 @@
                     <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="fas fa-eye"></i>  Background</a>
                     <ul class="collapse list-unstyled" id="pageSubmenu">
                         <li>
-                            <a href="http://web.judaicalink.org/faq/">FAQ</a>
+                            <a href="/faq">FAQ</a>
                         </li>
                         <li>
-                            <a href="http://web.judaicalink.org/about-us/">About</a>
+                            <a href="/about-us">About</a>
                         </li>
                         <li>
-                            <a href="http://web.judaicalink.org/legal/">Disclaimer</a>
+                            <a href="/legal">Disclaimer</a>
                         </li>
                     </ul>
                 </li>
@@ -63,4 +63,28 @@
 
       <!-- Page Navigation -->
 
+      <!-- Page Content -->
+
+<div id="content">
+    <div class="container-fluid">
+
+        <!-- Page Header -->
+<header class="row">
+    <div class="col-md-12">
+
+        <button type="button" id="sidebarCollapse" class="btn btn-secondary">
+                        <i class="fas fa-bars"></i>
+        </button>
+
+
+        <div class="header-logos">
+       <a href="/"><img src="${server_base}static/yoxview/images/transp_judaica_labs.png" alt="JudaicaLink labs logo" class="logo"/></a>
+
+
+    <a href="https://www.ub.uni-frankfurt.de/judaica3/home.html" target="_blank"><img src="${server_base}static/yoxview/images/fid-logo.jpg" alt="FID logo" class="logofid"/></a>
+        </div>
+
+    </div>
+    <a href="https://github.com/wisslab/judaicalink-pubby" target="_blank"><img id="forkmeongithub" src="${server_base}static/yoxview/images/forkme-on-github_grey.png" alt="Fork me on GitHub"></a>
+</header>
 

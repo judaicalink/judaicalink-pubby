@@ -4,10 +4,6 @@
                       -->
                 #end
         #parse("navbar.vm")
-        <div class="wrapper">
-        <div id="content">
-           <div class="container-fluid">
-                #parse("header.vm")
                  <div class="row">
                     <div class="col-md-12">
                         <div class="header">

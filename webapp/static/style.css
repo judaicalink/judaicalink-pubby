@@ -193,9 +193,16 @@ body,html {
    width: 100%;
    height: 100%;
    font-size: 16px;
+   color:black;
+
 }
+
 h1, h2, h3, h4, a{
   color: #004284;
+}
+h1, h2, h3, h4{
+  margin-bottom: 20px;
+  margin-top: 20px;
 }
 
 /*-------------------------------------------------------*/
@@ -217,9 +224,9 @@ a:hover {
     transition: all 0.3s;
 }
 button {
-   position: relative;
-   top: -20px;
-   left: -70px;
+   position: fixed;
+   top: -5px;
+   margin-left: -68px;
    height: 35px;
    width: 35px;
    opacity: 0.6;
@@ -455,6 +462,7 @@ height: 130px;
     body,html {
         font-size: 14px;
         }
+
 
     #forkmeongithub {
     height: 0px;
