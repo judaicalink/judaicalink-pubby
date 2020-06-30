@@ -9,9 +9,6 @@
                            #if ($comment)
                                <p>$comment</p>
                            #end
-                           <div id="Judaicalogo">
-                                <a href="$project_link" title="$project_name"><img src="${server_base}static/logo.png" alt="[$project_name Logo]"/></a>
-                           </div>
                         </div>
                  <div class="row">
                     <div class="col-md-12 col-lg-9 col-xl-8">

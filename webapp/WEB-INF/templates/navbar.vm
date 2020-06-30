@@ -76,13 +76,12 @@
 
 
         <div class="header-logos">
-       <a href="/"><img src="${server_base}static/yoxview/images/transp_judaica_labs.png" alt="JudaicaLink labs logo" class="logo"/></a>
+       <a href="/"><img src="${server_base}static/yoxview/images/logo_judaica_data.png" alt="JudaicaLink Data logo" class="logo"/></a>
 
 
     <a href="https://www.ub.uni-frankfurt.de/judaica3/home.html" target="_blank"><img src="${server_base}static/yoxview/images/fid-logo.jpg" alt="FID logo" class="logofid"/></a>
         </div>
 
     </div>
-    <a href="https://github.com/wisslab/judaicalink-pubby" target="_blank"><img id="forkmeongithub" src="${server_base}static/yoxview/images/forkme-on-github_grey.png" alt="Fork me on GitHub"></a>
 </header>
 

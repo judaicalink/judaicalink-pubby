@@ -317,20 +317,6 @@ pre{
 .container-fluid {
 margin-top: -30px;}
 
-
-#forkmeongithub {
-height: 120px;
-position: absolute;
-top: 0;
-right: 0;
-border: 0;
-transition: .4s;
-}
-#forkmeongithub:hover {
-opacity: 0.8;
-height: 130px;
-}
-
 @media (max-width: 768px) {
     .logo {
         width: 170px;
@@ -368,14 +354,7 @@ height: 130px;
     #sidebarCollapse span {
         display: none;
     }
-    #forkmeongithub {
-    height: 0px;
-    margin-top: -20px;
-    }
-    #forkmeongithub:hover{
-    opacity: 1;
-    height: 100px;
-    }
+
     pre {
         font-size: 13px;
     }
