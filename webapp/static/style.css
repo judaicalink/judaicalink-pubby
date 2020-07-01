@@ -17,13 +17,14 @@ table.description td, table.description th {
     line-height: 1.2em;
     padding: 0.2em 0.4em;
     vertical-align: top;
-    word-wrap:break-word;
-    word-break:break-word;
+
 }
 
 table.description tr{
     word-wrap:break-word;
     word-break:break-word;
+    overflow-wrap: break-word;      /* enables data table to be responsive in microsoft firefox browser*/
+    word-break:break-all;       /* enables data table to be responsive in microsoft edge browser*/
     }
 table.description ul {
     margin: 0;
@@ -45,6 +46,8 @@ table.description small, .metadata-table a small {
 table.description .property {
     word-wrap:break-word;
     word-break:break-word;
+    word-break:break-all;           /* enables data table to be responsive in microsoft edge browser*/
+    overflow-wrap: break-word;      /* enables data table to be responsive in firefox browser*/
 }
 table.description .odd td {
     background: none repeat scroll 0 0 #DDDDDD;
@@ -63,10 +66,6 @@ a.expander {
     background-color: #F0F0F0#;
     margin: 20px 3px 22px;
 }
-/*
-#JudaicaLogo{
-     width:200px;
-}*/
 
 .middle {
     float: left;
@@ -106,7 +105,6 @@ body,html {
    height: 100%;
    font-size: 16px;
    color:black;
-
 }
 
 h1, h2, h3, h4, a{
@@ -116,7 +114,6 @@ h1, h2, h3, h4{
   margin-bottom: 20px;
   margin-top: 20px;
 }
-
 /*-------------------------------------------------------*/
 
 
@@ -135,7 +132,8 @@ a:hover {
     text-decoration: none;
     transition: all 0.3s;
 }
-button {
+
+.buttonnav{
    position: fixed;
    top: -5px;
    margin-left: -68px;
@@ -143,7 +141,6 @@ button {
    width: 35px;
    opacity: 0.6;
 }
-
 #sidebar {
     width: 250px;
     position: fixed;
@@ -151,18 +148,20 @@ button {
     left: 0;
     height: 100vh;
     z-index: 999;
-    background: #ffc6bf;   /*hier*/
-    color: grey; /*Schriftfarbe komplett*/
+    /*background: #bff8ff;*/
+    color: #505050;
     transition: all 0.3s;
+    background-image: url("../static/yoxview/images/5backgroundtransparent.png");
+    background-color: #ffc6bf;
+    background-size: cover;
+    background-blend-mode: multiply;
 }
 #sidebar.active {
     margin-left: -250px;
 }
-
 #sidebar a[data-toggle="collapse"] {
     position: relative;
 }
-
 .dropdown-toggle::after {
     display: block;
     position: absolute;
@@ -172,13 +171,12 @@ button {
 }
 #sidebar .sidebar-header {
     padding: 20px;
-    background-color: #ffc6bf; /*hier*/
 }
 
-#sidebar ul.components {
+/*#sidebar ul.components {
     padding: 20px 0;
-    border-bottom: 1px solid grey;
-}
+    border-bottom: 1px solid lightgrey;
+}*/
 
 #sidebar ul p {
     padding: 10px;
@@ -190,16 +188,17 @@ button {
     display: block;
 }
 #sidebar ul li a:hover {
-    background: #FF8273;  /*Dunkelblau in Hex #004284 0,128,0*/
+    background: #FF8273;  /*Dunkelblau in Hex #004284*/
 }
 
 #sidebar ul li.active {
-    /*background: #004284; /*Home*/
+    /*background: #004284;*/
 }
-#sidebar ul ul a {  /*das sind die aufklapbaren*/
+#sidebar ul ul a {
     font-size: 0.9em !important;
     padding-left: 30px !important;
-    background: #ffc6bf;
+    /*background: #bff8ff;*/
+
 }
 
 #content {
@@ -218,6 +217,10 @@ button {
 
 .row {
     padding: 10px;
+    }
+
+.border_left {
+    border-left: solid 1px lightgrey;
     }
 
 #hdmlogo {
@@ -273,17 +276,10 @@ button {
 
 /*FID Logo oben rechts*/
 .logofid {
-  width: 220px;
+  width: 215px;
   }
 /*FID Logo oben rechts*/
-#footer {
-    display: flex;
-    justify-content: space-evenly;
-    flex-wrap: wrap;
-    align-content: center;
-    align-items: center;
-    color: grey;
-    }
+
 
 .footer-logos {
     display: flex;
@@ -291,6 +287,7 @@ button {
     flex-wrap: wrap;
     align-content: center;
     align-items: center;
+
 }
 
 .footer-content{
@@ -304,36 +301,44 @@ button {
 
 }
 .footer-content a{
-    color:grey;
-}
-
-pre{
-    color:grey;
+    color: grey;
 }
 .footer-content a:hover{
     text-decoration:underline;
 }
+pre{
+    color:grey;}
+
 
 .container-fluid {
 margin-top: -30px;}
 
-@media (max-width: 768px) {
+/* ---------------------------------------------------
+    MEDIAQUERIES
+----------------------------------------------------- */
+/*@media (max-width: 1000px) wenn kleiner als 1000px oder =1000px dann...*/
+
+
+@media (max-width: 540px){
     .logo {
-        width: 170px;
+        width: 150px;
+        margin-left: 10px;
     }
-    .logofid {
-        width: 180px;
+
+    footer-content {
+        font-size: 14px;
     }
 
     #sidebar {
         margin-left: -100%; /*davor -250px*/
         width: 100%;        /*250px*/
+        position:fixed;
     }
 
     #sidebar.active {
         margin-left: 0px;
     }
-    button {                    /*evtl. hier buttonnav vgl. labs*/
+    .buttonnav {
         z-index: 1000;
         top: 1px;
         margin-left: -34px;  /*Button außen*/
@@ -345,27 +350,52 @@ margin-top: -30px;}
         font-size: 14px;
         }
 
-    #content {
-        width: 100%;
-    }
+
     #content.active {       /*Button innen*/
         width: 50px;
     }
     #sidebarCollapse span {
         display: none;
     }
-
     pre {
         font-size: 13px;
     }
     #content {
+    width: 100%;
     padding: 10px;
     margin-top: 20px;
     }
 
 }
 
+@media (max-width: 768px) {
+    .logo {
+        width: 170px;
+        margin-left: 10px;
+    }
+    #content {
+    padding: 10px;
+    margin-top: 20px;
+    }
+
+    .buttonnav {
+        margin-left: -38px;  /*Button außen*/
+    }
+}
+@media (max-width: 992px) {
+    .logo {
+    width: 180px;
+    }
+
+    .logofid {
+    width: 195px;
+    }
+
+}
+
+
 /*-------------------------------------------------------*/
+
 
 
 
