@@ -24,17 +24,14 @@
             </div>
 
             <ul class="list-unstyled components">
-                <li class="active">
-                    <a href="/"><i class="fas fa-home"></i>  Web Home</a>
-                </li>
                 <li>
-                    <a href="/datasets"><i class="fas fa-table"></i>  Datasets</a>
+                    <a href="http://web.judaicalink.org/datasets/"><i class="fas fa-table"></i>  Datasets Overview</a>
                 </li>
                 <li>
                     <a href="http://labs.judaicalink.org/search/"><i class="fas fa-search"></i>  Labs Search</a>
                 </li>
                 <li>
-                <a href="/news"><i class="fas fa-comment"></i>  News</a>
+                <a href="http://web.judaicalink.org/news/"><i class="fas fa-comment"></i>  News</a>
                 </li>
                 <li>
                     <a href="https://www.ub.uni-frankfurt.de/judaica3/home.html" target="_blank"><i class="fas fa-hanukiah"></i>  FID Jewish Studies</a>
@@ -47,13 +44,13 @@
                     <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="fas fa-eye"></i>  Background</a>
                     <ul class="collapse list-unstyled" id="pageSubmenu">
                         <li>
-                            <a href="/faq">FAQ</a>
+                            <a href="http://web.judaicalink.org/faq"">FAQ</a>
                         </li>
                         <li>
-                            <a href="/about-us">About</a>
+                            <a href="http://web.judaicalink.org/about-us">About</a>
                         </li>
                         <li>
-                            <a href="/legal">Disclaimer</a>
+                            <a href="http://web.judaicalink.org/legal">Disclaimer</a>
                         </li>
                     </ul>
                 </li>
@@ -70,16 +67,14 @@
 <header class="row">
     <div class="col-md-12">
 
-        <button type="button" id="sidebarCollapse" class="btn btn-secondary">
+        <button type="button" id="sidebarCollapse" class="btn btn-secondary buttonnav">
                         <i class="fas fa-bars"></i>
         </button>
 
 
         <div class="header-logos">
-       <a href="/"><img src="${server_base}static/yoxview/images/logo_judaica_data.png" alt="JudaicaLink Data logo" class="logo"/></a>
-
-
-    <a href="https://www.ub.uni-frankfurt.de/judaica3/home.html" target="_blank"><img src="${server_base}static/yoxview/images/fid-logo.jpg" alt="FID logo" class="logofid"/></a>
+       <a href="http://web.judaicalink.org/"><img src="${server_base}static/yoxview/images/logo_judaica_data.png" alt="JudaicaLink Data logo" class="logo"/></a>
+    <a href="https://www.ub.uni-frankfurt.de/judaica3/home.html" target="_blank"><img src="${server_base}static/yoxview/images/fid-logo.jpg" alt="FID logo" class="logofid d-none d-md-block"/></a>
         </div>
 
     </div>

@@ -4,21 +4,25 @@
                       -->
                 #end
         #parse("navbar.vm")
-        <div class="header">
-                        <h1 id="title">$title</h1>
-                           #if ($comment)
-                               <p>$comment</p>
-                           #end
-                        </div>
-                 <div class="row">
-                    <div class="col-md-12 col-lg-9 col-xl-8">
-
-                        <div class="breadcrumbs">
-                                URI of this data resource: <a href="$rdf_link">$rdf_link</a>
-                        </div>
-                    </div>
+        <div class="row">
+            <div class="col-12 col-sm-12 ml-3 ml-md-0 col-md-12 col-lg-9 col-xl-8"">
+                 <div class="header">
+                    <h1 id="title">$title</h1>
+                    #if ($comment)
+                        <p>$comment</p>
+                    #end
                  </div>
-
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-sm-12 ml-3 ml-md-0 col-md-12 col-lg-9 col-xl-8">
+                 <div class="breadcrumbs">
+                    URI of this data resource: <a href="$rdf_link">$rdf_link</a>
+                 </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-sm-12 ml-3 ml-md-0 col-md-12 col-lg-9 col-xl-8">
                  #foreach ($resource in $resources)
                         <div class="resource">
                             <div class="clear"></div>
@@ -39,9 +43,11 @@
                             </div>
                             <div class="clear"></div>
                         </div>
-                        #end
+                 #end
                         <div class="clear"></div>
                  </div>
+            </div>
+        </div>
                  <div class="row">
                     <div class="col-md-12">
                             <div id="bottom">
@@ -90,7 +96,7 @@
                         </div>
                    </div>
                  </div>
-           </div>
+            </div>
         </div>
   </body>
 </html>
